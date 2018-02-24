@@ -9,4 +9,4 @@ In a terminal:
 1. git clone git@github.com:rustbridge/rustbridge.io.git
 2. cd rustbridge.io
 3. cargo run
-4. Navigate in a web browser to http://localhost:8000
+Navigate with a web browser to http://localhost:8000
