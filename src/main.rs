@@ -24,23 +24,6 @@ struct TemplateContext {
     data: String,
 }
 
-
-// #[get("/about")]
-// fn about () -> Template {
-//     let mut aboutFile = File::open("data/about.md").expect("");
-//     let mut about = String::new();
-//     aboutFile.read_to_string(&mut about).expect("failed to read");
-
-//     let hum = markdown_to_html(&about, &ComrakOptions::default());
-
-//     // println!("{}",hum);
-    
-//     let context = TemplateContext {
-//         about: hum
-//     };
-
-//     Template::render("index", &context)
-
 fn get_html_from_file(path: String) -> String {
     println!("{}", path);
     let mut file = File::open(path).expect("failed to open path");

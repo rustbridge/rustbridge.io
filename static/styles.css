@@ -50,7 +50,7 @@ body {
 }
 
 .background {
-  background-image: url(../img/rustday.jpg);
+  background-image: url(img/rustday.jpg);
   background-size: cover;
   min-height: 350px;
 }
