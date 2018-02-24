@@ -1,4 +1,6 @@
 # rustbridge.io
+[![Build Status](https://travis-ci.org/rustbridge/rustbridge.io.svg?branch=master)](https://travis-ci.org/rustbridge/rustbridge.io)
+
 Clone to rust of https://rustbridge.github.io/
 
 # Rustbridge
