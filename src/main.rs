@@ -22,6 +22,7 @@ struct TemplateContext {
     title: String,
     parent: String,
     data: String,
+    res: String
 }
 
 fn get_html_from_file(path: String) -> String {
@@ -39,10 +40,12 @@ fn index() -> Template {
     
     let title = "rust bridge".to_string();
     let about = get_html_from_file("data/about.md".to_string());
+    let res = get_html_from_file("data/resources.md".to_string());
 
     let context = TemplateContext {
         title,
         data: about,
+        res,
         parent: "layout".to_string(),
     };
 
@@ -54,13 +57,14 @@ fn page(page: String) -> Template {
     let title = format!("rust bridge - {}", page).to_string();
     let markdown_path = format!("data/{}.md", page);
     let data = get_html_from_file(markdown_path.to_string());
+    let res = get_html_from_file("data/resources.md".to_string());
 
     let context = TemplateContext {
         title,
         data, 
+        res,
         parent: "layout".to_string()
     };
-
     Template::render("page".to_string(), &context) 
 }
 
