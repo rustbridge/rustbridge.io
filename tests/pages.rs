@@ -3,7 +3,7 @@ extern crate rocket;
 
 
 fn rocket() -> rocket::Rocket {
-    rocket::ignite().mount("/", routes![main::index])
+    rocket::ignite().mount("/", rocket_codegen::routes![main::index])
 }
 
 #[cfg(test)]
@@ -12,8 +12,6 @@ mod test {
     use super::rocket;
     use rocket::local::Client;
     use rocket::http::Status;
-
-    
 
     #[test]
     fn home_page(){
