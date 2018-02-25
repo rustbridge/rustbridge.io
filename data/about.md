@@ -1,3 +1,4 @@
+### About RustBridge
 RustBridge is a workshop focused on getting underrepresented people with
 a background in another programming language to learn Rust and join the
 community.
