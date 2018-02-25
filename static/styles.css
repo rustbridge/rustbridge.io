@@ -94,7 +94,6 @@ footer a {
 }
 
 #login-wrapper {
-    position: absolute;
     margin: auto;
     top: 0;
     right: 0;
@@ -115,6 +114,8 @@ footer a {
     margin-bottom: 20px;
     display: block;
 }
+
+
 
 
 
