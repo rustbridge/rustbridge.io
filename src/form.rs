@@ -1,8 +1,8 @@
-use rocket::request::{FromForm, FormItems};
+use rocket::request::{FormItems, FromForm};
 use std::collections::HashMap;
 use rocket::http::RawStr;
 use Login;
-use ForgotUsername; 
+use ForgotUsername;
 use Workshop;
 
 impl<'f> FromForm<'f> for ForgotUsername {
@@ -18,9 +18,9 @@ impl<'f> FromForm<'f> for ForgotUsername {
         // TODO: fix this!
         let login = match map.get(login) {
             Some(login) => true,
-            None => false
+            None => false,
         };
-        
+
         let email: &RawStr = "email".into();
 
         let email = match map.get(email) {
@@ -28,10 +28,7 @@ impl<'f> FromForm<'f> for ForgotUsername {
             None => "".to_string(),
         };
 
-        let forgot_username = ForgotUsername {
-            email,
-            login,
-        };
+        let forgot_username = ForgotUsername { email, login };
 
         Ok(forgot_username)
     }
@@ -55,10 +52,7 @@ impl<'f> FromForm<'f> for Login {
             None => return Err(()),
         };
 
-        let login = Login {
-            email,
-            password, 
-        };
+        let login = Login { email, password };
         Ok(login)
     }
 }
@@ -68,7 +62,7 @@ impl<'f> FromForm<'f> for Workshop {
     type Error = ();
     fn from_form(items: &mut FormItems<'f>, strict: bool) -> Result<Workshop, ()> {
         let map: HashMap<_, _> = items.collect();
-       
+
         let date: &RawStr = "workshop-date".into();
         let date = match map.get(date) {
             Some(date) => date.to_string(),
@@ -105,11 +99,8 @@ impl<'f> FromForm<'f> for Workshop {
             start_time,
             reg_link,
             desc,
-            name
+            name,
         };
         Ok(workshop)
     }
 }
-
-
-
