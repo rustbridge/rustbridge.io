@@ -11,14 +11,12 @@ use rocket_contrib::Template;
 use rocket::response::NamedFile;
 use std::fs::File;
 use std::io::Read;
-use rocket::http::Status;
 use comrak::{markdown_to_html, ComrakOptions};
 use std::path::PathBuf;
 use std::path::Path;
 use rocket::request::Form;
 
 mod form;
-
 
 #[derive(Serialize)]
 struct TemplateContext {
@@ -99,6 +97,16 @@ struct Login {
 }
 
 #[derive(Debug)]
+struct Workshop {
+    name: String,
+    reg_link: String,
+    desc: String,
+    start_time: String,
+    end_time: String,
+    date: String
+}
+
+#[derive(Debug)]
 struct ForgotUsername {
     email: String,
     login: bool, // user clicked login or not...fix this...
@@ -139,10 +147,22 @@ fn files(file: PathBuf) -> Option<NamedFile> {
     NamedFile::open(Path::new("static/").join(file)).ok()
 }
 
+#[get("/post_workshop")]
+fn post_workshop() -> Template {
+    let c = Context {};
+    Template::render("post_workshop".to_string(), &c) 
+}
+
+#[post("/post_workshop", data="<form_data>")]
+fn workshop_submit(form_data: Form<Workshop>) -> String {
+    println!("{:?}", form_data.get());  
+    "post_workshop".to_string()
+}
+
 fn main() {
     rocket::ignite()
         .attach(Template::fairing())
-        .mount("/", routes![index,files,page,login, login_submit, forgot_username, reset_username])
+        .mount("/", routes![index,files,page,login, login_submit, forgot_username, reset_username, post_workshop, workshop_submit])
         .launch();
 
 }
