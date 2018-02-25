@@ -146,14 +146,15 @@ fn login_submit(form_data: Form<Login>) -> String {
 
     let connection = establish_connection();
     // let user = users.filter(email.eq(form_data.get().email)).limit(1).load::<User>(&connection).expect("Unable to find user with that email");
-    let user: User = users.find(1).first::<User>(&connection).expect("Unable to find user with that email");
-    println!("we worked! {:?}", user.email);
+    // let user: User = users.find(users.eq(form_data.get().email)).first::<User>(&connection).expect("Unable to find user with that email");
+    //let user: User = users.select(email.eq(form_data.get().email)).first(true).load::<User>(&connection).expect("Unable to find user with that email");
+    let user = users.filter(email.eq(&form_data.get().email)).first::<User>(&connection).expect("SHould be a thing");
 
-    // if user.password == form_data.get().password {
-    //     return "Yay, correct password".to_string();
-    // } else {
-    //     return "Whoops, wrong password".to_string();
-    // }
+    if user.password == form_data.get().password {
+        return "Yay, correct password".to_string();
+    } else {
+        return "Whoops, wrong password".to_string();
+    }
 
 
     println!("{:?}", form_data.get());  

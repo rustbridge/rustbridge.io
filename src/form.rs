@@ -44,7 +44,7 @@ impl<'f> FromForm<'f> for Login {
         let email: &RawStr = "email".into();
 
         let email = match map.get(email) {
-            Some(email) => email.to_string(),
+            Some(email) => email.url_decode().map_err(|_| ())?,
             None => return Err(()),
         };
 
