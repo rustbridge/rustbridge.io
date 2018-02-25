@@ -1,8 +1,6 @@
 #![feature(plugin)]
 #![plugin(rocket_codegen)]
 
-extern crate rocket_contrib;
-extern crate rocket;
 extern crate comrak;
 extern crate lib;
 extern crate diesel;
@@ -11,10 +9,6 @@ extern crate dotenv;
 
 
 use diesel::prelude::*;
-use diesel::pg::PgConnection;
-
-use dotenv::dotenv;
-use std::env;
 use lib::establish_connection;
 
 
@@ -23,8 +17,11 @@ use lib::models::User;
 // use self::models::*;
 //mod models;
 
+extern crate rocket;
+extern crate rocket_contrib;
 
-#[macro_use] extern crate serde_derive;
+#[macro_use]
+extern crate serde_derive;
 
 use rocket_contrib::Template;
 use rocket::response::NamedFile;
@@ -42,13 +39,11 @@ struct TemplateContext {
     title: String,
     parent: String,
     data: String,
-    sidebar: String
+    sidebar: String,
 }
 
 #[derive(Serialize)]
-struct Context {
-
-}
+struct Context {}
 
 fn get_html_from_file(path: String) -> String {
     println!("{}", path);
@@ -62,7 +57,6 @@ fn get_html_from_file(path: String) -> String {
 
 #[get("/")]
 fn index() -> Template {
-    
     let title = "rust bridge".to_string();
     let about = get_html_from_file("data/about.md".to_string());
     let sidebar = get_html_from_file("data/workshops.md".to_string());
@@ -77,7 +71,7 @@ fn index() -> Template {
     Template::render("page".to_string(), &context)
 }
 
-#[get("/<page>", rank=1)]
+#[get("/<page>", rank = 1)]
 fn page(page: String) -> Template {
     let title = format!("rust bridge - {}", page).to_string();
     let markdown_path = format!("data/{}.md", page);
@@ -86,33 +80,33 @@ fn page(page: String) -> Template {
     println!("{} hmm page is ::: ", page);
 
     let sidebar = if page == "about" {
-            get_html_from_file("data/workshops.md".to_string())
-        } else {
-            get_html_from_file("data/resources.md".to_string())
-        };
+        get_html_from_file("data/workshops.md".to_string())
+    } else {
+        get_html_from_file("data/resources.md".to_string())
+    };
 
     println!("{} WOHOHOH", sidebar);
 
     let context = TemplateContext {
         title,
-        data, 
+        data,
         sidebar,
-        parent: "layout".to_string()
+        parent: "layout".to_string(),
     };
-    Template::render("page".to_string(), &context) 
+    Template::render("page".to_string(), &context)
 }
 
-#[get("/forgot_username")] 
+#[get("/forgot_username")]
 fn forgot_username() -> Template {
     println!("We forgot username");
     let c = Context {};
-    Template::render("reset_username".to_string(), &c) 
+    Template::render("reset_username".to_string(), &c)
 }
 
 #[derive(Debug)]
 struct Login {
     email: String,
-    password: String
+    password: String,
 }
 
 #[derive(Debug)]
@@ -122,7 +116,7 @@ struct Workshop {
     desc: String,
     start_time: String,
     end_time: String,
-    date: String
+    date: String,
 }
 
 #[derive(Debug)]
@@ -131,24 +125,23 @@ struct ForgotUsername {
     login: bool, // user clicked login or not...fix this...
 }
 
-#[post("/reset_username", data="<form_data>")]
+#[post("/reset_username", data = "<form_data>")]
 fn reset_username(form_data: Form<ForgotUsername>) -> Template {
     let c = Context {};
     if form_data.get().login {
-        return Template::render("login".to_string(), &c) 
+        return Template::render("login".to_string(), &c);
     } else {
         println!("We should reset usr password");
     }
-    Template::render("reset_username".to_string(), &c) 
+    Template::render("reset_username".to_string(), &c)
 }
 
-#[post("/reset_username", rank=2)] 
+#[post("/reset_username", rank = 2)]
 fn login_again() -> String {
     "heheh".to_string()
 }
 
-
-#[post("/login", data="<form_data>")]
+#[post("/login", data = "<form_data>")]
 fn login_submit(form_data: Form<Login>) -> Template {
     use lib::schema::users::dsl::*;
 
@@ -169,25 +162,35 @@ fn login_submit(form_data: Form<Login>) -> Template {
 #[get("/login")]
 fn login() -> Template {
     let c = Context {};
-    Template::render("login".to_string(), &c) 
+    Template::render("login".to_string(), &c)
 }
-
 
 #[get("/static/<file..>", rank = 1)]
 fn files(file: PathBuf) -> Option<NamedFile> {
     NamedFile::open(Path::new("static/").join(file)).ok()
 }
 
-#[post("/post_workshop", data="<form_data>")]
+#[post("/post_workshop", data = "<form_data>")]
 fn workshop_submit(form_data: Form<Workshop>) -> String {
-    println!("{:?}", form_data.get());  
+    println!("{:?}", form_data.get());
     "post_workshop".to_string()
 }
 
 fn main() {
     rocket::ignite()
         .attach(Template::fairing())
-        .mount("/", routes![index,files,page,login, login_submit, forgot_username, reset_username, workshop_submit])
+        .mount(
+            "/",
+            routes![
+                index,
+                files,
+                page,
+                login,
+                login_submit,
+                forgot_username,
+                reset_username,
+                workshop_submit
+            ],
+        )
         .launch();
-
 }
