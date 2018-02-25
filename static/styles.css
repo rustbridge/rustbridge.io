@@ -103,6 +103,7 @@ footer a {
     height: 200px;
 }
 
+
 #login-form {
     display: inline-block;
     vertical-align: middle;
@@ -113,6 +114,16 @@ footer a {
 .label {
     margin-bottom: 20px;
     display: block;
+}
+
+
+#workshop-wrapper {
+  margin: auto;
+    top: 0;
+    right: 0;
+    bottom: 0;
+    left: 0;
+    width: 50%;
 }
 
 
