@@ -130,9 +130,10 @@ fn login_again() -> String {
 
 
 #[post("/login", data="<form_data>")]
-fn login_submit(form_data: Form<Login>) -> String {
+fn login_submit(form_data: Form<Login>) -> Template {
     println!("{:?}", form_data.get());  
-    "hehe login".to_string()
+    let c = Context {};
+    Template::render("post_workshop".to_string(), &c) 
 }
 
 #[get("/login")]
@@ -147,12 +148,6 @@ fn files(file: PathBuf) -> Option<NamedFile> {
     NamedFile::open(Path::new("static/").join(file)).ok()
 }
 
-#[get("/post_workshop")]
-fn post_workshop() -> Template {
-    let c = Context {};
-    Template::render("post_workshop".to_string(), &c) 
-}
-
 #[post("/post_workshop", data="<form_data>")]
 fn workshop_submit(form_data: Form<Workshop>) -> String {
     println!("{:?}", form_data.get());  
@@ -162,7 +157,7 @@ fn workshop_submit(form_data: Form<Workshop>) -> String {
 fn main() {
     rocket::ignite()
         .attach(Template::fairing())
-        .mount("/", routes![index,files,page,login, login_submit, forgot_username, reset_username, post_workshop, workshop_submit])
+        .mount("/", routes![index,files,page,login, login_submit, forgot_username, reset_username, workshop_submit])
         .launch();
 
 }
