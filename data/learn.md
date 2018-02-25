@@ -1,3 +1,4 @@
+
 ## Curriculum
 
 The goal of RustBridge is threefold:

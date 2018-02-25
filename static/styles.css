@@ -92,3 +92,26 @@ footer a {
 #resources h3 {
   margin-bottom: 30px;
 }
+
+#login-wrapper {
+    position: absolute;
+    margin: auto;
+    top: 0;
+    right: 0;
+    bottom: 0;
+    left: 0;
+    width: 250px;
+    height: 200px;
+}
+
+#login-form {
+    display: inline-block;
+    vertical-align: middle;
+    margin: 60;
+
+}
+
+.label {
+    margin-bottom: 20px;
+    display: block;
+}
