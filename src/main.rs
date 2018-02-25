@@ -30,14 +30,12 @@ use rocket_contrib::Template;
 use rocket::response::NamedFile;
 use std::fs::File;
 use std::io::Read;
-use rocket::http::Status;
 use comrak::{markdown_to_html, ComrakOptions};
 use std::path::PathBuf;
 use std::path::Path;
 use rocket::request::Form;
 
 mod form;
-
 
 #[derive(Serialize)]
 struct TemplateContext {
@@ -118,6 +116,16 @@ struct Login {
 }
 
 #[derive(Debug)]
+struct Workshop {
+    name: String,
+    reg_link: String,
+    desc: String,
+    start_time: String,
+    end_time: String,
+    date: String
+}
+
+#[derive(Debug)]
 struct ForgotUsername {
     email: String,
     login: bool, // user clicked login or not...fix this...
@@ -141,7 +149,7 @@ fn login_again() -> String {
 
 
 #[post("/login", data="<form_data>")]
-fn login_submit(form_data: Form<Login>) -> String {
+fn login_submit(form_data: Form<Login>) -> Template {
     use lib::schema::users::dsl::*;
 
     let connection = establish_connection();
@@ -150,15 +158,12 @@ fn login_submit(form_data: Form<Login>) -> String {
     //let user: User = users.select(email.eq(form_data.get().email)).first(true).load::<User>(&connection).expect("Unable to find user with that email");
     let user = users.filter(email.eq(&form_data.get().email)).first::<User>(&connection).expect("SHould be a thing");
 
+    let c = Context {};
     if user.password == form_data.get().password {
-        return "Yay, correct password".to_string();
+        return Template::render("post_workshop".to_string(), &c);
     } else {
-        return "Whoops, wrong password".to_string();
-    }
-
-
-    println!("{:?}", form_data.get());  
-    "hehe login".to_string()
+        return Template::render("login".to_string(), &c);
+    }  
 }
 
 #[get("/login")]
@@ -173,11 +178,16 @@ fn files(file: PathBuf) -> Option<NamedFile> {
     NamedFile::open(Path::new("static/").join(file)).ok()
 }
 
+#[post("/post_workshop", data="<form_data>")]
+fn workshop_submit(form_data: Form<Workshop>) -> String {
+    println!("{:?}", form_data.get());  
+    "post_workshop".to_string()
+}
 
 fn main() {
     rocket::ignite()
         .attach(Template::fairing())
-        .mount("/", routes![index,files,page,login, login_submit, forgot_username, reset_username])
+        .mount("/", routes![index,files,page,login, login_submit, forgot_username, reset_username, workshop_submit])
         .launch();
 
 }

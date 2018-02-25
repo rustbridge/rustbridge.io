@@ -1,0 +1,52 @@
+<!doctype html>
+<html>
+    <head>
+        <title>{{title}}</title>
+        <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css" integrity="sha384-BVYiiSIFeK1dGmJRAkycuHAHRg32OmUcww7on3RYdg4Va+PmSTsz/K68vbdEjh4u" crossorigin="anonymous">
+        <link rel="stylesheet" href="/static/styles.css"/>
+        <link rel="icon" href="/favicon.ico" type="image/x-icon">
+    </head>
+    <body class="text-center"> 
+        <div id="workshop-wrapper">
+
+        <form class="form-signin" action="post_workshop" >
+            <div class="post-workshop-container-container">
+                <h1>Post workshop</h1>
+                <p>Fill in stuff to post a workshop!</p>
+                <br>
+                <label  class="sr-only" for="workshop-name">Workshop name</label>
+                <input  class="form-control" type="text" placeholder="Workshop name" name="workshop-name" >
+                <br>
+                <label  class="sr-only" for="workshop-date">Date</label>
+                <input  class="form-control" type="text" placeholder="Date" name="workshop-date" >
+                <br>
+
+                <label  class="sr-only" for="workshop-reg-link">Registration link</label>
+                <input  class="form-control" type="text" placeholder="Registration link" name="workshop-reg-link" >
+                <br>
+                <label  class="sr-only" for="workshop-description">Description</label>
+                <input  class="form-control" type="text" placeholder="Description" name="workshop-description" >
+                <br>
+                <label  class="sr-only" for="workshop-starttime">Start time</label>
+                <input  class="form-control" type="text" placeholder="Start time" name="workshop-starttime" >
+                <br>
+                <label  class="sr-only" for="workshop-endtime">End time</label>
+                <input  class="form-control" type="text" placeholder="End time" name="workshop-endtime" >
+                <br>
+
+                <div class="clearfix">
+                    <button type="button" class="cancelbtn">Cancel</button>
+                    <button type="submit" class="postbtn">Post</button>
+                </div>
+            </div>
+        </form>
+
+        </div>
+    </body>
+</html>
+
+
+
+
+
+

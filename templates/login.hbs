@@ -6,19 +6,19 @@
         <link rel="stylesheet" href="/static/styles.css"/>
         <link rel="icon" href="/favicon.ico" type="image/x-icon">
     </head>
-    <body>
+    <body class="text-center">
 
         <div id="login-wrapper">
-            <form id="login-form" method="POST" action="/login">
-                <label>
-                <input type="text" title="email" placeholder="email" name="email" />
-                </label>
+            <img class="mb-4" src="/static/img/farris.png" height="70%">
+            <h1 class="h3 mb-3 font-weight-normal">Please log in</h1>
+            <form id="login-form" method="POST" action="/login" class="form-signin">
+                <label for="email" class="sr-only"></label>
+                <input type="email" title="email"  class="form-control" placeholder="email" name="email" required autofocus/>
                 <br>
-                <label>
-                <input type="password" title="username" placeholder="password" name="password"/>
-                </label>
+                <label for="password" class="sr-only">Password</label>
+                <input type="password" title="password"  class="form-control"  placeholder="password" name="password" required/>
                 <br>
-                <button type="submit" class="btn">Login</button>
+                <button class="btn btn-lg btn-primary btn-block" type="submit">Login</button>
                 <a class="forgot" href="forgot_username">Forgot Username?</a>
             </form>
         </div>
