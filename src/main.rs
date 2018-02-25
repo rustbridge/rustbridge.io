@@ -15,6 +15,9 @@ use rocket::http::Status;
 use comrak::{markdown_to_html, ComrakOptions};
 use std::path::PathBuf;
 use std::path::Path;
+use rocket::request::Form;
+
+mod form;
 
 
 #[derive(Serialize)]
@@ -22,7 +25,12 @@ struct TemplateContext {
     title: String,
     parent: String,
     data: String,
-    res: String
+    sidebar: String
+}
+
+#[derive(Serialize)]
+struct Context {
+
 }
 
 fn get_html_from_file(path: String) -> String {
@@ -40,33 +48,91 @@ fn index() -> Template {
     
     let title = "rust bridge".to_string();
     let about = get_html_from_file("data/about.md".to_string());
-    let res = get_html_from_file("data/resources.md".to_string());
+    let sidebar = get_html_from_file("data/workshops.md".to_string());
 
     let context = TemplateContext {
         title,
         data: about,
-        res,
+        sidebar,
         parent: "layout".to_string(),
     };
 
     Template::render("page".to_string(), &context)
 }
 
-#[get("/<page>")]
+#[get("/<page>", rank=1)]
 fn page(page: String) -> Template {
     let title = format!("rust bridge - {}", page).to_string();
     let markdown_path = format!("data/{}.md", page);
     let data = get_html_from_file(markdown_path.to_string());
-    let res = get_html_from_file("data/resources.md".to_string());
+
+    println!("{} hmm page is ::: ", page);
+
+    let sidebar = if page == "about" {
+            get_html_from_file("data/workshops.md".to_string())
+        } else {
+            get_html_from_file("data/resources.md".to_string())
+        };
+
+    println!("{} WOHOHOH", sidebar);
 
     let context = TemplateContext {
         title,
         data, 
-        res,
+        sidebar,
         parent: "layout".to_string()
     };
     Template::render("page".to_string(), &context) 
 }
+
+#[get("/forgot_username")] 
+fn forgot_username() -> Template {
+    println!("We forgot username");
+    let c = Context {};
+    Template::render("reset_username".to_string(), &c) 
+}
+
+#[derive(Debug)]
+struct Login {
+    email: String,
+    password: String
+}
+
+#[derive(Debug)]
+struct ForgotUsername {
+    email: String,
+    login: bool, // user clicked login or not...fix this...
+}
+
+#[post("/reset_username", data="<form_data>")]
+fn reset_username(form_data: Form<ForgotUsername>) -> Template {
+    let c = Context {};
+    if form_data.get().login {
+        return Template::render("login".to_string(), &c) 
+    } else {
+        println!("We should reset usr password");
+    }
+    Template::render("reset_username".to_string(), &c) 
+}
+
+#[post("/reset_username", rank=2)] 
+fn login_again() -> String {
+    "heheh".to_string()
+}
+
+
+#[post("/login", data="<form_data>")]
+fn login_submit(form_data: Form<Login>) -> String {
+    println!("{:?}", form_data.get());  
+    "hehe login".to_string()
+}
+
+#[get("/login")]
+fn login() -> Template {
+    let c = Context {};
+    Template::render("login".to_string(), &c) 
+}
+
 
 #[get("/static/<file..>", rank = 1)]
 fn files(file: PathBuf) -> Option<NamedFile> {
@@ -76,7 +142,7 @@ fn files(file: PathBuf) -> Option<NamedFile> {
 fn main() {
     rocket::ignite()
         .attach(Template::fairing())
-        .mount("/", routes![index,files, page])
+        .mount("/", routes![index,files,page,login, login_submit, forgot_username, reset_username])
         .launch();
 
 }
