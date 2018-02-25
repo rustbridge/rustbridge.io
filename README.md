@@ -10,6 +10,7 @@ Our events are aimed at people who are underrepresented in technology and offer 
 
 # Requirments 
 Rust development enviroment setup: [Rust](https://www.rust-lang.org/en-US/)
+PostgreSQL database setup: [PostgreSQL](https://www.postgresql.org/)
 
 # Usage
 In a terminal:

@@ -2,6 +2,21 @@
 #![plugin(rocket_codegen)]
 
 extern crate comrak;
+extern crate lib;
+extern crate diesel;
+extern crate dotenv;
+
+
+
+use diesel::prelude::*;
+use lib::establish_connection;
+
+
+use lib::models::User;
+//use schema::users::*;
+// use self::models::*;
+//mod models;
+
 extern crate rocket;
 extern crate rocket_contrib;
 
@@ -128,9 +143,20 @@ fn login_again() -> String {
 
 #[post("/login", data = "<form_data>")]
 fn login_submit(form_data: Form<Login>) -> Template {
-    println!("{:?}", form_data.get());
+    use lib::schema::users::dsl::*;
+
+    let connection = establish_connection();
+    // let user = users.filter(email.eq(form_data.get().email)).limit(1).load::<User>(&connection).expect("Unable to find user with that email");
+    // let user: User = users.find(users.eq(form_data.get().email)).first::<User>(&connection).expect("Unable to find user with that email");
+    //let user: User = users.select(email.eq(form_data.get().email)).first(true).load::<User>(&connection).expect("Unable to find user with that email");
+    let user = users.filter(email.eq(&form_data.get().email)).first::<User>(&connection).expect("SHould be a thing");
+
     let c = Context {};
-    Template::render("post_workshop".to_string(), &c)
+    if user.password == form_data.get().password {
+        return Template::render("post_workshop".to_string(), &c);
+    } else {
+        return Template::render("login".to_string(), &c);
+    }  
 }
 
 #[get("/login")]
