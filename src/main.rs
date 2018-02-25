@@ -4,6 +4,25 @@
 extern crate rocket_contrib;
 extern crate rocket;
 extern crate comrak;
+extern crate lib;
+extern crate diesel;
+extern crate dotenv;
+
+
+
+use diesel::prelude::*;
+use diesel::pg::PgConnection;
+
+use dotenv::dotenv;
+use std::env;
+use lib::establish_connection;
+
+
+use lib::models::User;
+//use schema::users::*;
+// use self::models::*;
+//mod models;
+
 
 #[macro_use] extern crate serde_derive;
 
@@ -123,6 +142,20 @@ fn login_again() -> String {
 
 #[post("/login", data="<form_data>")]
 fn login_submit(form_data: Form<Login>) -> String {
+    use lib::schema::users::dsl::*;
+
+    let connection = establish_connection();
+    // let user = users.filter(email.eq(form_data.get().email)).limit(1).load::<User>(&connection).expect("Unable to find user with that email");
+    let user: User = users.find(1).first::<User>(&connection).expect("Unable to find user with that email");
+    println!("we worked! {:?}", user.email);
+
+    // if user.password == form_data.get().password {
+    //     return "Yay, correct password".to_string();
+    // } else {
+    //     return "Whoops, wrong password".to_string();
+    // }
+
+
     println!("{:?}", form_data.get());  
     "hehe login".to_string()
 }
@@ -138,6 +171,7 @@ fn login() -> Template {
 fn files(file: PathBuf) -> Option<NamedFile> {
     NamedFile::open(Path::new("static/").join(file)).ok()
 }
+
 
 fn main() {
     rocket::ignite()

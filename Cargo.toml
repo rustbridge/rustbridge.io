@@ -3,6 +3,10 @@ name = "rustbridge"
 version = "0.1.0"
 authors = ["erichall <hallstrom.eric@gmail.com>"]
 
+[lib]
+name = "lib"
+path = "src/lib.rs"
+
 [dependencies]
 rocket = "0.3.6"
 rocket_codegen = "0.3.6"
