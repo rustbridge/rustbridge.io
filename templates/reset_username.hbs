@@ -6,13 +6,18 @@
         <link rel="stylesheet" href="/static/styles.css"/>
         <link rel="icon" href="/favicon.ico" type="image/x-icon">
     </head>
-    <body>
-        <form id="login-form" method="POST" action="/reset_username">
-            <label>
-                <input type="text" title="email" placeholder="email" name="email" />
+    <body class="text-center">
+        <div id="login-wrapper">
+        <img class="mb-4" src="/static/img/farris.png" height="70%">
+        <h1 class="h3 mb-3 font-weight-normal">Reset password</h1>
+        <form id="form-signin" method="POST" action="/reset_username">
+            <label for="email" class="sr-only"></label>
+                <input type="text" title="email" placeholder="email" name="email" autofocus class="form-control"/>
             </label>
             <br>
-            <button type="submit" class="btn" name="reset_username">Reset password</button>
-            <button type="submit" class="btn" name="login">Login</button>
+            <button class="btn btn-lg btn-primary btn-block" type="submit" name="reset_username">Reset password</button>
+                <a class="forgot" href="login">Login</a>
         </form>
+        </div>
 </body>
+
