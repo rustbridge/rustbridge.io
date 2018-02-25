@@ -1,0 +1,50 @@
+<!doctype html>
+<html>
+    <head>
+        <title>{{title}}</title>
+        <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css" integrity="sha384-BVYiiSIFeK1dGmJRAkycuHAHRg32OmUcww7on3RYdg4Va+PmSTsz/K68vbdEjh4u" crossorigin="anonymous">
+        <link rel="stylesheet" href="/static/workshop.css"/>
+        <link rel="icon" href="/favicon.ico" type="image/x-icon">
+    </head>
+    <body>
+        <div class="workshop-wrapper">
+        <form action="post_workshop" style="border:1px solid #ccc">
+            <div class="post-workshop-container-container">
+                <h1>Post workshop</h1>
+                <p>Fill in stuff to post a workshop!</p>
+                <br>
+                <label for="workshop-name">Workshop name</label>
+                <input type="text" placeholder="Workshop name" name="workshop-name" >
+                <br>
+                <label for="workshop-date">Date</label>
+                <input type="text" placeholder="Date" name="workshop-date" >
+                <br>
+
+                <label for="workshop-reg-link">Registration link</label>
+                <input type="text" placeholder="Registration link" name="workshop-reg-link" >
+                <br>
+                <label for="workshop-description">Description</label>
+                <input type="text" placeholder="Description" name="workshop-description" >
+                <br>
+                <label for="workshop-starttime">Start time</label>
+                <input type="text" placeholder="Start time" name="workshop-starttime" >
+                <br>
+                <label for="workshop-endtime">End time</label>
+                <input type="text" placeholder="End time" name="workshop-starttime" >
+                <br>
+
+                <div class="clearfix">
+                    <button type="button" class="cancelbtn">Cancel</button>
+                    <button type="submit" class="postbtn">Post</button>
+                </div>
+            </div>
+        </form>
+        </div>
+    </body>
+</html>
+
+
+
+
+
+

@@ -11,7 +11,6 @@ use rocket_contrib::Template;
 use rocket::response::NamedFile;
 use std::fs::File;
 use std::io::Read;
-use rocket::http::Status;
 use comrak::{markdown_to_html, ComrakOptions};
 use std::path::PathBuf;
 use std::path::Path;
@@ -139,10 +138,16 @@ fn files(file: PathBuf) -> Option<NamedFile> {
     NamedFile::open(Path::new("static/").join(file)).ok()
 }
 
+#[get("/post_workshop")]
+fn post_workshop() -> Template {
+    let c = Context {};
+    Template::render("post_workshop".to_string(), &c) 
+}
+
 fn main() {
     rocket::ignite()
         .attach(Template::fairing())
-        .mount("/", routes![index,files,page,login, login_submit, forgot_username, reset_username])
+        .mount("/", routes![index,files,page,login, login_submit, forgot_username, reset_username, post_workshop])
         .launch();
 
 }
