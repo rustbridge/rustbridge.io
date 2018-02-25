@@ -3,12 +3,11 @@
     <head>
         <title>{{title}}</title>
         <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css" integrity="sha384-BVYiiSIFeK1dGmJRAkycuHAHRg32OmUcww7on3RYdg4Va+PmSTsz/K68vbdEjh4u" crossorigin="anonymous">
-        <link rel="stylesheet" href="/static/workshop.css"/>
-        <link rel="icon" href="/favicon.ico" type="image/x-icon">
+        <link rel="stylesheet" href="/static/styles.css"/>
     </head>
     <body>
         <div class="workshop-wrapper">
-        <form action="post_workshop" style="border:1px solid #ccc">
+        <form action="post_workshop" style="border:1px solid #ccc" method="POST">
             <div class="post-workshop-container-container">
                 <h1>Post workshop</h1>
                 <p>Fill in stuff to post a workshop!</p>
@@ -30,7 +29,7 @@
                 <input type="text" placeholder="Start time" name="workshop-starttime" >
                 <br>
                 <label for="workshop-endtime">End time</label>
-                <input type="text" placeholder="End time" name="workshop-starttime" >
+                <input type="text" placeholder="End time" name="workshop-endtime" >
                 <br>
 
                 <div class="clearfix">

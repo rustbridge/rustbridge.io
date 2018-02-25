@@ -18,7 +18,6 @@ use rocket::request::Form;
 
 mod form;
 
-
 #[derive(Serialize)]
 struct TemplateContext {
     title: String,
@@ -98,6 +97,16 @@ struct Login {
 }
 
 #[derive(Debug)]
+struct Workshop {
+    name: String,
+    reg_link: String,
+    desc: String,
+    start_time: String,
+    end_time: String,
+    date: String
+}
+
+#[derive(Debug)]
 struct ForgotUsername {
     email: String,
     login: bool, // user clicked login or not...fix this...
@@ -144,10 +153,16 @@ fn post_workshop() -> Template {
     Template::render("post_workshop".to_string(), &c) 
 }
 
+#[post("/post_workshop", data="<form_data>")]
+fn workshop_submit(form_data: Form<Workshop>) -> String {
+    println!("{:?}", form_data.get());  
+    "post_workshop".to_string()
+}
+
 fn main() {
     rocket::ignite()
         .attach(Template::fairing())
-        .mount("/", routes![index,files,page,login, login_submit, forgot_username, reset_username, post_workshop])
+        .mount("/", routes![index,files,page,login, login_submit, forgot_username, reset_username, post_workshop, workshop_submit])
         .launch();
 
 }

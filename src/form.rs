@@ -3,6 +3,7 @@ use std::collections::HashMap;
 use rocket::http::RawStr;
 use Login;
 use ForgotUsername; 
+use Workshop;
 
 impl<'f> FromForm<'f> for ForgotUsername {
     type Error = ();
@@ -61,3 +62,54 @@ impl<'f> FromForm<'f> for Login {
         Ok(login)
     }
 }
+
+//TODO fix this
+impl<'f> FromForm<'f> for Workshop {
+    type Error = ();
+    fn from_form(items: &mut FormItems<'f>, strict: bool) -> Result<Workshop, ()> {
+        let map: HashMap<_, _> = items.collect();
+       
+        let date: &RawStr = "workshop-date".into();
+        let date = match map.get(date) {
+            Some(date) => date.to_string(),
+            None => return Err(()),
+        };
+        let start_time: &RawStr = "workshop-starttime".into();
+        let start_time = match map.get(start_time) {
+            Some(start_time) => start_time.to_string(),
+            None => return Err(()),
+        };
+        let end_time: &RawStr = "workshop-endtime".into();
+        let end_time = match map.get(end_time) {
+            Some(end_time) => end_time.to_string(),
+            None => return Err(()),
+        };
+        let desc: &RawStr = "workshop-description".into();
+        let desc = match map.get(desc) {
+            Some(desc) => desc.to_string(),
+            None => return Err(()),
+        };
+        let name: &RawStr = "workshop-name".into();
+        let name = match map.get(name) {
+            Some(name) => name.to_string(),
+            None => return Err(()),
+        };
+        let reg_link: &RawStr = "workshop-reg-link".into();
+        let reg_link = match map.get(reg_link) {
+            Some(reg_link) => reg_link.to_string(),
+            None => return Err(()),
+        };
+        let workshop = Workshop {
+            date,
+            end_time,
+            start_time,
+            reg_link,
+            desc,
+            name
+        };
+        Ok(workshop)
+    }
+}
+
+
+
