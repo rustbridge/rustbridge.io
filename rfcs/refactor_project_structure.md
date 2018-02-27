@@ -76,8 +76,8 @@ The `error`, `form`, `model` and `schema` directories isolate the modules
 implementation from the modules usage within the project.  
 
 #### Consequences
-+ We can make changes to individual modules without needing to make changes
-  anywhere else.
++ We can make changes to the underlying business logic, while keeping the
+  implementation clean.  
 
 ## `error/test/`, `form/test/`, `model/test/`, `schema/test/` 
 The `error/test/`, `form/test/`, `model/test/` and `schema/test/` directories
@@ -85,5 +85,5 @@ isolate the implementation of unit tests from the implementation of the
 module.
 
 #### Consequences
-+ The unit tests stay organized
++ The unit tests stay organized.
 + We know very quickly if a change made breaks an existing module.  
