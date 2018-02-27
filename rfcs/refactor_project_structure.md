@@ -2,7 +2,7 @@
 [summary]: #summary
 
 This RFC describes a restructuring of the project into a library with separate modules for errors, forms,
-models and schemas.   
+models and schemas following the project layout [reference](https://doc.rust-lang.org/cargo/reference/manifest.html#the-project-layout).
 
 # Motivation
 [motivation]: #motivation
@@ -27,34 +27,22 @@ whats already there.
 This RFC proposes the following project structure:
 ```
 src
-├── bin
-│   └── main.rs
-├── error
-│   ├── test
-│   │   └── mod.rs
+├── error             # error handling
 │   └── mod.rs
-├── form
-│   ├── test
-│   │   ├── mod.rs
-│   │   ├── login.rs
-│   │   └── workshop.rs
+├── form              # input form controllers
 │   ├── mod.rs
 │   ├── login.rs
 │   └── workshop.rs
-├── model
-│   ├── test
-│   │   ├── mod.rs
-│   │   └── user.rs
+├── model             # data models
 │   ├── mod.rs
 │   └── user.rs
-├── schema
-│   ├── test
-│   │   ├── mod.rs
-│   │   └── user.rs
+├── schema            # database schemas (not entirely sure if we need this module)
 │   ├── mod.rs
 │   └── user.rs
-└── lib.rs
-
+├── tests             # tests
+│   └── mod.rs
+├── lib.rs
+└── main.rs
 ```
 
 ## Directory Structure Explanation
@@ -79,10 +67,9 @@ implementation from the modules usage within the project.
 + We can make changes to the underlying business logic, while keeping the
   implementation clean.  
 
-## `error/test/`, `form/test/`, `model/test/`, `schema/test/` 
-The `error/test/`, `form/test/`, `model/test/` and `schema/test/` directories
-isolate the implementation of unit tests from the implementation of the
-module.
+## `tests/`
+The tests directory isolates the implementation of unit tests from the
+implementation of the module.
 
 #### Consequences
 + The unit tests stay organized.
