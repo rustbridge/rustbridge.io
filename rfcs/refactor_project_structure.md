@@ -29,11 +29,11 @@ This RFC proposes the following project structure:
 src
 ├── error             # error handling
 │   └── mod.rs
-├── for               # input form controllers
+├── form              # input form controllers
 │   ├── login.rs
 │   ├── mod.rs
 │   └── workshop.rs
-├── mode              # data models
+├── model             # data models
 │   ├── mod.rs
 │   └── user.rs
 ├── schema            # database schemas (not entirely sure if we need this module)
