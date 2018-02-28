@@ -29,20 +29,19 @@ This RFC proposes the following project structure:
 src
 ├── error             # error handling
 │   └── mod.rs
-├── form              # input form controllers
-│   ├── mod.rs
+├── for               # input form controllers
 │   ├── login.rs
+│   ├── mod.rs
 │   └── workshop.rs
-├── model             # data models
+├── mode              # data models
 │   ├── mod.rs
 │   └── user.rs
 ├── schema            # database schemas (not entirely sure if we need this module)
 │   ├── mod.rs
 │   └── user.rs
-├── tests             # tests
-│   └── mod.rs
 ├── lib.rs
-└── main.rs
+├── main.rs
+└── tests.rs
 ```
 
 ## Directory Structure Explanation
