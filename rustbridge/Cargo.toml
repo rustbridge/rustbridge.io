@@ -1,0 +1,20 @@
+[package]
+name = "rustbridge"
+version = "0.1.0"
+authors = ["technetos <mrgould93@gmail.com>"]
+
+[dependencies]
+rocket = "0.3.6"
+rocket_codegen = "0.3.6"
+comrak = "0.2.8"
+serde_derive = "1.0.27"
+serde = "1.0"
+
+failure = { git = "https://github.com/rust-lang-nursery/failure.git" }
+failure_derive = { git = "https://github.com/rust-lang-nursery/failure.git" }
+display_derive = { git = "https://github.com/withoutboats/display_derive.git" }
+
+[dependencies.rocket_contrib]
+version = "*"
+default-features = false
+features = ["handlebars_templates"]
