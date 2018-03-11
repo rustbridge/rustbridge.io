@@ -1,3 +1,5 @@
+pub mod organizer;
+
 use failure::ResultExt;
 use failure::Error;
 
@@ -57,12 +59,12 @@ fn render_page(title: &str, content: PathBuf, sidebar: PathBuf) -> Template {
     template
 }
 
-fn page_title(current_page: &str) -> String {
+pub fn page_title(current_page: &str) -> String {
     format!("RustBridge - {}", current_page)
 }
 
-fn content_path(file: &str) -> PathBuf {
-    PathBuf::from("../data").join(file)
+pub fn content_path(file: &str) -> PathBuf {
+    PathBuf::from("data").join(file)
 }
 
 #[get("/static/<asset..>", rank = 1)]

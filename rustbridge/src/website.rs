@@ -11,7 +11,8 @@ pub fn start() {
                 route::static_asset,
                 route::about,
                 route::learn,
-                route::volunteer
+                route::volunteer,
+                route::organizer::login
             ],
         )
         .launch();
