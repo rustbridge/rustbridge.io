@@ -159,14 +159,6 @@ dependencies = [
 ]
 
 [[package]]
-name = "dotenv"
-version = "0.9.0"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-dependencies = [
- "regex 0.2.7 (registry+https://github.com/rust-lang/crates.io-index)",
-]
-
-[[package]]
 name = "dtoa"
 version = "0.4.2"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -587,7 +579,6 @@ dependencies = [
  "comrak 0.2.8 (registry+https://github.com/rust-lang/crates.io-index)",
  "diesel 1.1.1 (registry+https://github.com/rust-lang/crates.io-index)",
  "display_derive 1.0.0 (git+https://github.com/withoutboats/display_derive.git)",
- "dotenv 0.9.0 (registry+https://github.com/rust-lang/crates.io-index)",
  "failure 1.0.0 (git+https://github.com/rust-lang-nursery/failure.git)",
  "failure_derive 1.0.0 (git+https://github.com/rust-lang-nursery/failure.git)",
  "rocket 0.3.6 (registry+https://github.com/rust-lang/crates.io-index)",
@@ -920,7 +911,6 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 "checksum diesel 1.1.1 (registry+https://github.com/rust-lang/crates.io-index)" = "925325c57038f2f14c0413bdf6a92ca72acff644959d0a1a9ebf8d19be7e9c01"
 "checksum diesel_derives 1.1.0 (registry+https://github.com/rust-lang/crates.io-index)" = "28e2b2605ac6a3b9a586383f5f8b2b5f1108f07a421ade965b266289d2805e79"
 "checksum display_derive 1.0.0 (git+https://github.com/withoutboats/display_derive.git)" = "<none>"
-"checksum dotenv 0.9.0 (registry+https://github.com/rust-lang/crates.io-index)" = "400b347fe65ccfbd8f545c9d9a75d04b0caf23fec49aaa838a9a05398f94c019"
 "checksum dtoa 0.4.2 (registry+https://github.com/rust-lang/crates.io-index)" = "09c3753c3db574d215cba4ea76018483895d7bff25a31b49ba45db21c48e50ab"
 "checksum entities 1.0.1 (registry+https://github.com/rust-lang/crates.io-index)" = "b5320ae4c3782150d900b79807611a59a99fc9a1d61d686faafc24b93fc8d7ca"
 "checksum failure 1.0.0 (git+https://github.com/rust-lang-nursery/failure.git)" = "<none>"
