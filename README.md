@@ -13,6 +13,8 @@ Our events are aimed at people who are underrepresented in technology and offer 
 * PostgreSQL database driver: [Diesel](http://diesel.rs/guides/getting-started/)
 * PostgreSQL database setup: [PostgreSQL](https://www.postgresql.org/)
 
+*Note*: some of the dependencies used in this project use nightly builds. You may need to use nightly to run the project. To install nightly run: `rustup install nightly` to use nightly run: `rustup run nightly rustc`, and to set default to nightly: `rustup default nightly`
+
 # Usage
 In a terminal:
 1. git clone git@github.com:rustbridge/rustbridge.io.git
