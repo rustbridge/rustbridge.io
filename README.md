@@ -21,7 +21,25 @@ In a terminal:
 2. cd rustbridge.io
 3. cargo run
 
+
 Navigate with a web browser to http://localhost:8000
+
+### Database setup
+To set up the local PostgreSQL database, run the command: `echo DATABASE_URL=postgres://[username]:[password]@localhost/rustbridge > .env`
+Unless otherwise specified, the username should be postgres, and the password is whatever you set during the postgres installation. 
+
+Once connection is established, run: 
+```
+$ diesel setup
+> Creating database: rustbridge
+```
+
+Then running the migration script should apply all changes to your database.
+```
+$ diesel migration run
+> Running migration [current migration]
+```
+
 
 # License 
 Rustbridge is primarily distributed under the terms of both the MIT license and the Apache License (Version 2.0), 
