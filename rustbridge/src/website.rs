@@ -12,7 +12,8 @@ pub fn start() {
                 route::about,
                 route::learn,
                 route::volunteer,
-                route::organizer::login,
+                route::organizer::login_page,
+                route::organizer::login_user,
                 route::organizer::login_submit
             ],
         )
