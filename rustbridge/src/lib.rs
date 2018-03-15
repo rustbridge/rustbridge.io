@@ -1,4 +1,4 @@
-#![feature(plugin, decl_macro)]
+#![feature(plugin, decl_macro, custom_derive)]
 #![plugin(rocket_codegen)]
 
 pub extern crate comrak;
