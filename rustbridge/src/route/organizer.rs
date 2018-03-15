@@ -1,21 +1,85 @@
 use route::page_title;
+use form::login::Login;
+use model::user::User;
+use db;
+
 use rocket_contrib::Template;
+use rocket::request::{FlashMessage, Form, FromRequest, Outcome, Request};
+use rocket::http::{Cookie, Cookies};
+use rocket::response::{Flash, Redirect};
+use rocket::outcome::IntoOutcome;
 
 #[derive(Serialize)]
 struct LoginPage<'c> {
     title: &'c str,
+    flash: Option<&'c str>,
 }
 
 impl<'c> LoginPage<'c> {
-    pub fn new(title: &'c str) -> LoginPage {
-        LoginPage { title }
+    pub fn new(title: &'c str, flash: Option<&'c str>) -> LoginPage<'c> {
+        LoginPage { title, flash }
     }
 }
 
-#[get("/login")]
-fn login() -> Template {
+struct UserCookie(usize);
+
+impl<'a, 'r> FromRequest<'a, 'r> for UserCookie {
+    type Error = ();
+
+    fn from_request(request: &'a Request<'r>) -> Outcome<UserCookie, ()> {
+        request
+            .cookies()
+            .get_private("user_id")
+            .and_then(|cookie| cookie.value().parse().ok())
+            .map(|id| UserCookie(id))
+            .or_forward(())
+    }
+}
+
+#[get("/login", rank = 2)]
+fn login_page(flash: Option<FlashMessage>) -> Template {
     let title = page_title("Login");
 
-    let context = LoginPage::new(&title[..]);
+    let context: LoginPage;
+
+    if let Some(ref msg) = flash {
+        context = LoginPage::new(&title[..], Some(msg.msg()));
+    } else {
+        context = LoginPage::new(&title[..], None);
+    }
+
     Template::render("login", &context)
+}
+
+#[get("/login")]
+fn login_user(_user: UserCookie) -> Redirect {
+    Redirect::to("/dashboard")
+}
+
+#[post("/login", data = "<login>")]
+fn login_submit(mut cookies: Cookies, login: Form<Login>) -> Flash<Redirect> {
+    use diesel::prelude::*;
+    use schema::users::dsl::*;
+
+    let connection = db::establish_connection();
+
+    let error_msg = "Invalid username / password";
+
+    let user = users
+        .filter(email.eq(&login.get().email()))
+        .first::<User>(&connection)
+        .ok();
+
+    if user.is_none() {
+        return Flash::error(Redirect::to("/login"), error_msg);
+    }
+
+    let user = user.unwrap();
+
+    if user.password == login.get().password() {
+        cookies.add_private(Cookie::new("user_id", user.id.to_string()));
+        Flash::success(Redirect::to("/login"), "Successfully logged in")
+    } else {
+        Flash::error(Redirect::to("/login"), error_msg)
+    }
 }
