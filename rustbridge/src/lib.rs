@@ -6,7 +6,6 @@ pub extern crate rocket;
 pub extern crate rocket_contrib;
 
 pub extern crate display_derive;
-#[macro_use]
 pub extern crate failure;
 pub extern crate failure_derive;
 

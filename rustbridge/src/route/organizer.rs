@@ -3,14 +3,11 @@ use form::login::Login;
 use model::user::User;
 use db;
 
-use failure::ResultExt;
-
 use rocket_contrib::Template;
 use rocket::request::{FlashMessage, Form, FromRequest, Outcome, Request};
 use rocket::http::{Cookie, Cookies};
 use rocket::response::{Flash, Redirect};
 use rocket::outcome::IntoOutcome;
-use rocket::response::Responder;
 
 #[derive(Serialize)]
 struct LoginPage<'c> {

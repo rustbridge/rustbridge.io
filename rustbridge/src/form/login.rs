@@ -1,6 +1,3 @@
-use rocket::request::FromForm;
-use rocket::http::RawStr;
-
 #[derive(FromForm)]
 pub struct Login {
     // Validated by browser, non-empty, email format
