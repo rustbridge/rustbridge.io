@@ -25,7 +25,12 @@ In a terminal:
 Navigate with a web browser to http://localhost:8000
 
 ### Database setup
-To set up the local PostgreSQL database, run the command: `echo DATABASE_URL=postgres://[username]:[password]@localhost/rustbridge > .env`
+To set up the local PostgreSQL database, run the command:
+ `echo DATABASE_URL=postgres://[username]:[password]@localhost/rustbridge`. 
+
+*Note* on windows you'll need to set the `DATABASE_URL` by running (as administrator):
+`setx /m DATABASE_URL postgres://[username]:[password]@localhost/rustbridge`
+
 Unless otherwise specified, the username should be postgres, and the password is whatever you set during the postgres installation. 
 
 Once connection is established, run: 
