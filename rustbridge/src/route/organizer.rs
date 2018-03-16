@@ -3,11 +3,14 @@ use form::login::Login;
 use model::user::User;
 use db;
 
+use failure::ResultExt;
+
 use rocket_contrib::Template;
 use rocket::request::{FlashMessage, Form, FromRequest, Outcome, Request};
 use rocket::http::{Cookie, Cookies};
 use rocket::response::{Flash, Redirect};
 use rocket::outcome::IntoOutcome;
+use rocket::response::Responder;
 
 #[derive(Serialize)]
 struct LoginPage<'c> {
@@ -57,7 +60,7 @@ fn login_user(_user: UserCookie) -> Redirect {
 }
 
 #[post("/login", data = "<login>")]
-fn login_submit(mut cookies: Cookies, login: Form<Login>) -> Flash<Redirect> {
+fn login_submit<'r>(mut cookies: Cookies, login: Form<Login>) -> Result<Redirect, Flash<Redirect>> {
     use diesel::prelude::*;
     use schema::users::dsl::*;
 
@@ -67,19 +70,10 @@ fn login_submit(mut cookies: Cookies, login: Form<Login>) -> Flash<Redirect> {
 
     let user = users
         .filter(email.eq(&login.get().email()))
-        .first::<User>(&connection)
-        .ok();
+        .filter(password.eq(&login.get().password()))
+        .first::<User>(&connection);
 
-    if user.is_none() {
-        return Flash::error(Redirect::to("/login"), error_msg);
-    }
-
-    let user = user.unwrap();
-
-    if user.password == login.get().password() {
-        cookies.add_private(Cookie::new("user_id", user.id.to_string()));
-        Flash::success(Redirect::to("/login"), "Successfully logged in")
-    } else {
-        Flash::error(Redirect::to("/login"), error_msg)
-    }
+    let u = user.map_err(|_| Flash::error(Redirect::to("/login"), error_msg))?;
+    cookies.add_private(Cookie::new("user_id", u.id.to_string()));
+    Ok(Redirect::to("/login"))
 }
