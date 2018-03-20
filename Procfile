@@ -1,1 +1,1 @@
-web: ROCKET_PORT=$PORT ROCKET_ENV=prod ./rustbridge/target/release/rustbridge
+web: ROCKET_PORT=$PORT ROCKET_ENV=prod ./target/release/rustbridge
