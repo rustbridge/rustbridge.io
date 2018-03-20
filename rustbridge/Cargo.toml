@@ -14,9 +14,8 @@ serde = "1.0"
 
 diesel = { version = "1.0.0", features = ["postgres"] }
 
-failure = { git = "https://github.com/rust-lang-nursery/failure.git" }
-failure_derive = { git = "https://github.com/rust-lang-nursery/failure.git" }
-display_derive = { git = "https://github.com/withoutboats/display_derive.git" }
+failure = "0.1.1"
+failure_derive = "0.1.1"
 
 [dependencies.rocket_contrib]
 version = "*"

@@ -5,7 +5,6 @@ pub extern crate comrak;
 pub extern crate rocket;
 pub extern crate rocket_contrib;
 
-pub extern crate display_derive;
 pub extern crate failure;
 pub extern crate failure_derive;
 
