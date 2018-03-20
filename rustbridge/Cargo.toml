@@ -1,7 +1,9 @@
 [package]
 name = "rustbridge"
 version = "0.1.0"
-authors = ["technetos <mrgould93@gmail.com>"]
+authors = ["technetos <mrgould93@gmail.com>",
+           "erichall <hallstrom.eric@gmail.com>",
+           "rupsis <nrupsis@gmail.com>"]
 
 [dependencies]
 rocket = "0.3.6"
