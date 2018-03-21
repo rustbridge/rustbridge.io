@@ -11,6 +11,9 @@
         <div id="login-wrapper">
             <img class="mb-4" src="/static/img/farris.png" height="70%">
             <h1 class="h3 mb-3 font-weight-normal">Please log in</h1>
+            {{#if flash}}
+              <p>{{ flash }}</p>
+            {{/if}}
             <form id="login-form" method="POST" action="/login" class="form-signin">
                 <label for="email" class="sr-only"></label>
                 <input type="email" title="email"  class="form-control" placeholder="email" name="email" required autofocus/>

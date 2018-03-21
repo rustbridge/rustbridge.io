@@ -1,20 +1,25 @@
+#![feature(plugin, decl_macro, custom_derive)]
+#![plugin(rocket_codegen)]
+
+pub extern crate comrak;
+pub extern crate rocket;
+pub extern crate rocket_contrib;
+
+pub extern crate failure;
+pub extern crate failure_derive;
+
+#[macro_use]
+pub extern crate serde_derive;
+
 #[macro_use]
 extern crate diesel;
-extern crate dotenv;use diesel::prelude::*;
-use diesel::pg::PgConnection;
-use dotenv::dotenv;
-use std::env;
 
-pub mod models;
+pub mod db;
+pub mod model;
 pub mod schema;
+pub mod website;
+pub mod route;
+pub mod form;
 
-
-
-pub fn establish_connection() -> PgConnection {
-    dotenv().ok();
-
-    let database_url = env::var("DATABASE_URL")
-        .expect("DATABASE_URL must be set");
-    PgConnection::establish(&database_url)
-        .expect(&format!("Error connecting to {}", database_url))
-}
+#[cfg(test)]
+mod tests {}
