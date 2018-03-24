@@ -19,3 +19,16 @@ pub fn establish_connection() -> PgConnection {
         panic!();
     })
 }
+
+pub fn salt_component() -> Result<&str, Error> {
+    use diesel::prelude::*;
+    use schema::salt::dsl::*;
+
+    let connection = establish_connection();
+
+    let salt = salts
+        .first::<Salt>(&connection)
+        .with_context(|e| format!("Failed to read salt from database\n => {}", e))?;
+
+    Ok(salt)
+}

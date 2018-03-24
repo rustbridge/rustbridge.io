@@ -9,6 +9,18 @@ use rocket::http::{Cookie, Cookies};
 use rocket::response::{Flash, Redirect};
 use rocket::outcome::IntoOutcome;
 
+use ring::{digest, rand, pbkdf2};
+
+fn salt(username: &str) -> Result<Vec<u8>, ()> {
+    let db_salt = db::salt_component().map_err(|_| ())?;
+    let mut res = Vec::with_capacity(username.as_bytes().len() + db_salt.as_bytes().len());
+
+    res.extend(db_salt.as_bytes());
+    res.extend(username.as_bytes());
+
+    Ok(res)
+}
+
 #[derive(Serialize)]
 struct LoginPage<'c> {
     title: &'c str,

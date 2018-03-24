@@ -17,6 +17,9 @@ diesel = { version = "1.0.0", features = ["postgres"] }
 failure = "0.1.1"
 failure_derive = "0.1.1"
 
+data-encoding = "2.1.1"
+ring = "0.11.0"
+
 [dependencies.rocket_contrib]
 version = "*"
 default-features = false
