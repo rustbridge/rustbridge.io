@@ -44,6 +44,8 @@ $ diesel migration run
 ```
 Which will apply all current migrations to your database.
 
+To add organizers to the database, make sure all migrations are applied, and follow the instructions on the [Rustbridge-Cli](https://github.com/rustbridge/rustbridge-cli).
+
 # License 
 Rustbridge is primarily distributed under the terms of both the MIT license and the Apache License (Version 2.0), 
 
