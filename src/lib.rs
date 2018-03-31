@@ -14,6 +14,9 @@ pub extern crate serde_derive;
 #[macro_use]
 extern crate diesel;
 
+extern crate data_encoding;
+extern crate ring;
+
 pub mod db;
 pub mod model;
 pub mod schema;

@@ -1,3 +1,4 @@
+use model::salt::Salt;
 use diesel::Connection;
 use diesel::pg::PgConnection;
 use failure::{Error, ResultExt};
@@ -18,4 +19,17 @@ pub fn establish_connection() -> PgConnection {
         println!("{}", e);
         panic!();
     })
+}
+
+pub fn salt_component() -> Result<String, Error> {
+    use diesel::prelude::*;
+    use schema::salts::dsl::*;
+
+    let connection = establish_connection();
+
+    let result = salts
+        .first::<Salt>(&connection)
+        .with_context(|e| format!("Failed to read salt from database\n => {}", e))?;
+
+    Ok(result.salt.to_string())
 }
