@@ -94,7 +94,7 @@ pub fn learn() -> Template {
 pub fn volunteer() -> Template {
     let title = page_title("Volunteer");
     let content = content_path("volunteer.md");
-    let sidebar = content_path("resources.md");
+    let sidebar = content_path("workshop_resources.md");
 
     render_page(&title[..], content, sidebar)
 }

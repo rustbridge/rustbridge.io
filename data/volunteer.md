@@ -40,3 +40,7 @@ space for events, or catering.
 
 Sponsors will get prominent display on event pages as well as the option to
 distribute swag at events.
+
+#### Interested in hosting your own RustBridge chapter?
+
+See the resources section for awesome tips, outlines and guides!
