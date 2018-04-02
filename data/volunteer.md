@@ -41,6 +41,6 @@ space for events, or catering.
 Sponsors will get prominent display on event pages as well as the option to
 distribute swag at events.
 
-#### [Interested in hosting your own RustBridge chapter?][1]
+#### [Interested in hosting a local RustBridge chapter?][1]
 
 [1]: https://github.com/rustbridge/in-a-box
