@@ -1,4 +1,5 @@
 pub mod organizer;
+pub mod dashboard;
 
 use failure::ResultExt;
 use failure::Error;
@@ -12,7 +13,7 @@ use comrak::{markdown_to_html, ComrakOptions};
 use rocket::response::NamedFile;
 use rocket_contrib::Template;
 
-fn html_from_file(path: &Path) -> Result<String, Error> {
+pub fn html_from_file(path: &Path) -> Result<String, Error> {
     let mut file = fs::File::open(&path)
         .with_context(|e| format!("Failed to open file: `{}`\n => {}", &path.display(), e))?;
 

@@ -14,7 +14,8 @@ pub fn start() {
                 route::volunteer,
                 route::organizer::login_page,
                 route::organizer::login_user,
-                route::organizer::login_submit
+                route::organizer::login_submit,
+                route::dashboard::dashboard
             ],
         )
         .launch();
