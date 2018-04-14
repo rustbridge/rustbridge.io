@@ -1,7 +1,7 @@
-use model::salt::Salt;
 use diesel::Connection;
 use diesel::pg::PgConnection;
 use failure::{Error, ResultExt};
+use model::salt::Salt;
 use std::env;
 
 pub fn establish_connection() -> PgConnection {

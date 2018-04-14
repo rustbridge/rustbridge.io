@@ -1,6 +1,6 @@
-use route;
 use rocket;
 use rocket_contrib::Template;
+use route;
 
 pub fn start() {
     rocket::ignite()
@@ -15,7 +15,9 @@ pub fn start() {
                 route::organizer::login_page,
                 route::organizer::login_user,
                 route::organizer::login_submit,
-                route::dashboard::dashboard
+                route::organizer::logout,
+                route::dashboard::dashboard,
+                route::dashboard::unauthenticated_dashboard,
             ],
         )
         .launch();

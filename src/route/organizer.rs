@@ -1,13 +1,13 @@
-use route::page_title;
+use db;
 use form::login::Login;
 use model::user::User;
-use db;
+use route::page_title;
 
-use rocket_contrib::Template;
-use rocket::request::{FlashMessage, Form, FromRequest, Outcome, Request};
 use rocket::http::{Cookie, Cookies};
-use rocket::response::{Flash, Redirect};
 use rocket::outcome::IntoOutcome;
+use rocket::request::{FlashMessage, Form, FromRequest, Outcome, Request};
+use rocket::response::{Flash, Redirect};
+use rocket_contrib::Template;
 
 use data_encoding::HEXUPPER;
 use ring::{digest, rand, pbkdf2};
@@ -48,7 +48,7 @@ impl<'c> LoginPage<'c> {
     }
 }
 
-struct UserCookie(usize);
+pub struct UserCookie(usize);
 
 impl<'a, 'r> FromRequest<'a, 'r> for UserCookie {
     type Error = ();
@@ -80,7 +80,7 @@ fn login_page(flash: Option<FlashMessage>) -> Template {
 
 #[get("/login")]
 fn login_user(_user: UserCookie) -> Redirect {
-    Redirect::to("/dashboard")
+    Redirect::to("/dashboard/home")
 }
 
 #[post("/login", data = "<login>")]
@@ -107,4 +107,10 @@ fn login_submit<'r>(mut cookies: Cookies, login: Form<Login>) -> Result<Redirect
 
     cookies.add_private(Cookie::new("user_id", user.id.to_string()));
     Ok(Redirect::to("/login"))
+}
+
+#[get("/logout")]
+fn logout(mut cookies: Cookies) -> Redirect {
+    cookies.remove_private(Cookie::named("user_id"));
+    Redirect::to("/")
 }
