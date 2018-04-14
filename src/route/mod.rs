@@ -1,12 +1,12 @@
-pub mod organizer;
 pub mod dashboard;
+pub mod organizer;
 
-use failure::ResultExt;
 use failure::Error;
+use failure::ResultExt;
 
-use std::path::{Path, PathBuf};
-use std::io::Read;
 use std::fs;
+use std::io::Read;
+use std::path::{Path, PathBuf};
 
 use comrak::{markdown_to_html, ComrakOptions};
 
@@ -14,7 +14,7 @@ use rocket::response::NamedFile;
 use rocket_contrib::Template;
 
 pub fn html_from_file(path: &Path) -> Result<String, Error> {
-    let mut file = fs::File::open(&path)
+    let mut file = fs::File::open(path)
         .with_context(|e| format!("Failed to open file: `{}`\n => {}", &path.display(), e))?;
 
     let mut content = String::new();
@@ -51,8 +51,7 @@ fn render_page(title: &str, content: PathBuf, sidebar: PathBuf) -> Template {
         let context = Page::new(title, "layout", page_content, sidebar_content);
 
         Ok(Template::render("page", &context))
-    }()
-        .unwrap_or_else(|e| {
+    }().unwrap_or_else(|e| {
         println!("{}", e);
         panic!();
     });

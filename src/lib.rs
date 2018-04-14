@@ -18,11 +18,11 @@ extern crate data_encoding;
 extern crate ring;
 
 pub mod db;
+pub mod form;
 pub mod model;
+pub mod route;
 pub mod schema;
 pub mod website;
-pub mod route;
-pub mod form;
 
 #[cfg(test)]
 mod tests {}
