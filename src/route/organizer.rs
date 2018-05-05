@@ -14,7 +14,7 @@ use ring::{digest, rand, pbkdf2};
 
 static DIGEST_ALG: &'static digest::Algorithm = &digest::SHA256;
 const CREDENTIAL_LEN: usize = digest::SHA256_OUTPUT_LEN;
-pub type Credential = [u8; CREDENTIAL_LEN];
+type Credential = [u8; CREDENTIAL_LEN];
 
 fn salt(username: &str) -> Result<Vec<u8>, ()> {
     let db_salt = db::salt_component().map_err(|_| ())?;
@@ -26,14 +26,14 @@ fn salt(username: &str) -> Result<Vec<u8>, ()> {
     Ok(res)
 }
 
-fn verify_password(email: &str, pw: &str, expected_pw_hash: &str) -> bool {
+fn verify_password(email: &str, pw: &str, expected_hash: &str) -> bool {
     let pw_salt = salt(email).unwrap();
+    let mut actual: Credential = [0u8; CREDENTIAL_LEN];
 
-    let mut to_store: Credential = [0u8; CREDENTIAL_LEN];
+    pbkdf2::derive(DIGEST_ALG, 100_000, &pw_salt, pw.as_bytes(), &mut actual);
+    let actual_hash = HEXUPPER.encode(&actual);
 
-    pbkdf2::derive(DIGEST_ALG, 100_000, &pw_salt, pw.as_bytes(), &mut to_store);
-
-    HEXUPPER.encode(&to_store) == expected_pw_hash.to_string()
+    &actual_hash == expected_hash
 }
 
 #[derive(Serialize)]
@@ -48,7 +48,7 @@ impl<'c> LoginPage<'c> {
     }
 }
 
-pub struct UserCookie(usize);
+pub struct UserCookie(pub usize);
 
 impl<'a, 'r> FromRequest<'a, 'r> for UserCookie {
     type Error = ();

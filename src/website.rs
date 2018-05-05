@@ -18,6 +18,7 @@ pub fn start() {
                 route::organizer::logout,
                 route::dashboard::dashboard,
                 route::dashboard::unauthenticated_dashboard,
+                route::dashboard::post_workshop,
             ],
         )
         .launch();

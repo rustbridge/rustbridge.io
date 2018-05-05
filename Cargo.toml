@@ -12,7 +12,9 @@ comrak = "0.2.8"
 serde_derive = "1.0.27"
 serde = "1.0"
 
-diesel = { version = "1.0.0", features = ["postgres"] }
+diesel = { version = "1.0.0", features = ["postgres", "chrono"] }
+
+chrono = "0.4"
 
 failure = "0.1.1"
 failure_derive = "0.1.1"
