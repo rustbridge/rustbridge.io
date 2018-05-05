@@ -13,6 +13,7 @@ pub extern crate serde_derive;
 
 #[macro_use]
 extern crate diesel;
+extern crate chrono;
 
 extern crate data_encoding;
 extern crate ring;

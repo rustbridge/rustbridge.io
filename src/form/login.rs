@@ -7,10 +7,6 @@ pub struct Login {
 }
 
 impl Login {
-    pub fn new(email: String, password: String) -> Login {
-        Login { email, password }
-    }
-
     pub fn email(&self) -> &str {
         &self.email[..]
     }
