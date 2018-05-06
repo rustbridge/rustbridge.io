@@ -1,0 +1,11 @@
+<div id="invites-wrapper">
+   <ul>
+      {{#each items}}
+      <li>
+        {{ this.email }}
+        {{ this.attending }}
+        {{ this.pending }}
+      </li>
+      {{/each}}
+    </ul>
+</div>

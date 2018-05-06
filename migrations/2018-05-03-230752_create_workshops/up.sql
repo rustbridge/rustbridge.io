@@ -5,9 +5,9 @@ CREATE TABLE workshops (
   organizer INTEGER NOT NULL REFERENCES users(id),
   description VARCHAR NOT NULL,
   location VARCHAR NOT NULL,
-  event_date DATE NOT NULL,
-  start_time TIME NOT NULL,
-  end_time TIME NOT NULL,
+  event_date TIMESTAMP NOT NULL,
+  start_time TIMESTAMP NOT NULL,
+  end_time TIMESTAMP NOT NULL,
   private BOOLEAN NOT NULL,
   created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
   updated_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP

@@ -1,78 +1,90 @@
 use failure::Error;
-use form::workshop::Workshop;
-use rocket::{request::Form,
-             response::{NamedFile, Redirect}};
+use form::workshop::Workshop as WorkshopForm;
+use rocket::{request::Form, response::Redirect};
 use rocket_contrib::Template;
-use route::{content_path, html_from_file, organizer::UserCookie, page_title};
-use std::path::{Path, PathBuf};
-
-#[derive(Serialize)]
-struct DashBoard<'d> {
-    title: &'d str,
-    parent: &'d str,
-    content: &'d str,
-}
-
-impl<'d> DashBoard<'d> {
-    pub fn new(title: &'d str, parent: &'d str, content: &'d str) -> DashBoard<'d> {
-        DashBoard {
-            title,
-            parent,
-            content,
-        }
-    }
-}
-
-fn render_dashboard(title: &str, content: PathBuf) -> Template {
-    let template = || -> Result<Template, Error> {
-        let page_content = html_from_file(&content.as_path())?;
-
-        let context = DashBoard::new(title, "dashboard", &page_content);
-
-        Ok(Template::render("dashboard_content", &context))
-    }().unwrap_or_else(|e| {
-        println!("{}", e);
-        panic!();
-    });
-
-    template
-}
+use route::{organizer::UserCookie, page_title};
+use std::path::PathBuf;
 
 fn home() -> Template {
-    let title = page_title("DashBoard");
-    let content = content_path("dashboard_activity.md");
+    let context = json!({
+      "title": page_title("DashBoard"),
+      "parent": "board/dashboard",
+      "content": "",
+    });
 
-    render_dashboard(&title, content)
+    Template::render("board/dashboard_content", &context)
 }
 
-fn invites() -> Template {
-    let title = page_title("Invites");
-    let content = content_path("dashboard_activity.md");
+fn invites(user_id: usize) -> Template {
+    use model::{invite::Invite, workshop::Workshop, Resource};
 
-    render_dashboard(&title, content)
+    type T<'t> = <Workshop<'t> as Resource>::Model;
+    let items: Vec<T> = Workshop::read_all()
+        .unwrap()
+        .into_iter()
+        .filter(|ws| ws.organizer == (user_id as i32))
+        .collect();
+
+    type U<'u> = <Invite<'u> as Resource>::Model;
+    let invites: Vec<U> = Invite::read_all().unwrap();
+    let mut user_invites = vec![];
+
+    items.iter().for_each(|ws| {
+        user_invites.extend(
+            invites
+                .iter()
+                .filter(|i| i.workshop_id == ws.id)
+                .collect::<Vec<&U>>(),
+        );
+    });
+
+    let context = json!({
+      "title": page_title("Invites"),
+      "parent": "board/dashboard",
+      "content": "board/your_invites",
+      "items": user_invites,
+    });
+
+    Template::render("board/dashboard_content", &context)
 }
 
-fn workshops() -> Template {
-    let title = page_title("Your Workshops");
-    let content = content_path("dashboard_activity.md");
+fn workshops(user_id: usize) -> Template {
+    use model::{workshop::Workshop, Resource};
 
-    render_dashboard(&title, content)
+    type T<'t> = <Workshop<'t> as Resource>::Model;
+    let items: Vec<T> = Workshop::read_all()
+        .unwrap()
+        .into_iter()
+        .filter(|ws| ws.organizer == (user_id as i32))
+        .collect();
+
+    let context = json!({
+      "title": page_title("Your Workshops"),
+      "parent": "board/dashboard",
+      "content": "board/your_workshops",
+      "items": items,
+    });
+
+    Template::render("board/dashboard_content", &context)
 }
 
 fn create_workshop() -> Template {
-    let title = page_title("Create Workshop");
-    let context = DashBoard::new(&title, "dashboard", "post_workshop");
+    let context = json!({
+      "title": page_title("Create Workshop"),
+      "parent": "board/dashboard",
+      "content": "board/post_workshop",
+    });
 
-    Template::render("dashboard_content", &context)
+    Template::render("board/dashboard_content", &context)
 }
 
 #[get("/dashboard/<page..>")]
-pub fn dashboard(_user: UserCookie, page: PathBuf) -> Template {
+pub fn dashboard(user: UserCookie, page: PathBuf) -> Template {
     match &page.to_string_lossy().into_owned()[..] {
         "home" => home(),
-        "workshops" => workshops(),
-        "invites" => invites(),
-        "create_workshop" => create_workshop(),
+        "workshops" => workshops(user.0),
+        "invites" => invites(user.0),
+        "create-workshop" => create_workshop(),
         _ => home(),
     }
 }
@@ -83,11 +95,26 @@ pub fn unauthenticated_dashboard(_page: PathBuf) -> Redirect {
 }
 
 #[post("/dashboard/workshop", data = "<workshop>")]
-pub fn post_workshop(user: UserCookie, workshop: Form<Workshop>) -> Option<Redirect> {
-    println!("Organizer id: {}", user.0);
-    println!("Workshop name: {}", workshop.get().name());
-    println!("Start time: {}", workshop.get().start_time());
-    println!("End time: {}", workshop.get().end_time());
-    println!("Date: {}", workshop.get().date());
-    Some(Redirect::to("/dashboard/workshops"))
+pub fn post_workshop(user: UserCookie, workshop: Form<WorkshopForm>) -> Result<Redirect, Error> {
+    use model::{workshop::Workshop, Resource, Sanitize, Validate};
+
+    let mut new_workshop = Workshop::from(&workshop);
+    new_workshop.organizer = Some(user.0 as i32);
+    new_workshop.create()?;
+
+    Ok(Redirect::to("/dashboard/workshops"))
+}
+
+#[post("/dashboard/workshop/<id>", data = "<workshop>")]
+pub fn update_workshop(
+    user: UserCookie,
+    id: i32,
+    workshop: Form<WorkshopForm>,
+) -> Result<Redirect, Error> {
+    use model::{workshop::Workshop, Resource};
+
+    let mut existing_workshop = Workshop::from(&workshop);
+    existing_workshop.update(id as usize)?;
+
+    Ok(Redirect::to("/dashboard/workshops"))
 }

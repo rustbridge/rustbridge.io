@@ -126,3 +126,8 @@ footer a {
     width: 50%;
 }
 
+button.link {
+  background: none;
+  border:none;
+}
+

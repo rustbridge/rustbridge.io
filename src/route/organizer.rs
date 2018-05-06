@@ -10,7 +10,7 @@ use rocket::response::{Flash, Redirect};
 use rocket_contrib::Template;
 
 use data_encoding::HEXUPPER;
-use ring::{digest, rand, pbkdf2};
+use ring::{digest, pbkdf2};
 
 static DIGEST_ALG: &'static digest::Algorithm = &digest::SHA256;
 const CREDENTIAL_LEN: usize = digest::SHA256_OUTPUT_LEN;
@@ -36,18 +36,6 @@ fn verify_password(email: &str, pw: &str, expected_hash: &str) -> bool {
     &actual_hash == expected_hash
 }
 
-#[derive(Serialize)]
-struct LoginPage<'c> {
-    title: &'c str,
-    flash: Option<&'c str>,
-}
-
-impl<'c> LoginPage<'c> {
-    pub fn new(title: &'c str, flash: Option<&'c str>) -> LoginPage<'c> {
-        LoginPage { title, flash }
-    }
-}
-
 pub struct UserCookie(pub usize);
 
 impl<'a, 'r> FromRequest<'a, 'r> for UserCookie {
@@ -67,13 +55,11 @@ impl<'a, 'r> FromRequest<'a, 'r> for UserCookie {
 fn login_page(flash: Option<FlashMessage>) -> Template {
     let title = page_title("Login");
 
-    let context: LoginPage;
-
-    if let Some(ref msg) = flash {
-        context = LoginPage::new(&title[..], Some(msg.msg()));
+    let context = if let Some(ref msg) = flash {
+        json!({ "title": title, "flash": msg.msg() })
     } else {
-        context = LoginPage::new(&title[..], None);
-    }
+        json!({ "title": title })
+    };
 
     Template::render("login", &context)
 }
