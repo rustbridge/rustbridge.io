@@ -1,3 +1,6 @@
+use db;
+use chrono::{NaiveDate, NaiveTime};
+use model::workshop::Workshop as WorkshopModel;
 use failure::Error;
 use form::workshop::Workshop;
 use rocket::{request::Form,
@@ -84,10 +87,22 @@ pub fn unauthenticated_dashboard(_page: PathBuf) -> Redirect {
 
 #[post("/dashboard/workshop", data = "<workshop>")]
 pub fn post_workshop(user: UserCookie, workshop: Form<Workshop>) -> Option<Redirect> {
-    println!("Organizer id: {}", user.0);
-    println!("Workshop name: {}", workshop.get().name());
-    println!("Start time: {}", workshop.get().start_time());
-    println!("End time: {}", workshop.get().end_time());
-    println!("Date: {}", workshop.get().date());
+  use diesel::prelude::*;
+  use schema::workshops::dsl::*; 
+
+  let connection = db::establish_connection();
+
+  let new_workshop = (
+    name.eq(workshop.get().name()),
+    organizer.eq(user.0 as i32),
+    description.eq(workshop.get().description()),
+    location.eq(workshop.get().location()),
+    event_date.eq(workshop.get().date()),
+    start_time.eq(workshop.get().start_time()),
+    end_time.eq(workshop.get().end_time()),
+    private.eq(workshop.get().private()));
+
+    let _ = ::diesel::insert_into(workshops).values(&new_workshop).execute(&connection);
+
     Some(Redirect::to("/dashboard/workshops"))
 }

@@ -1,4 +1,5 @@
-use chrono::{NaiveDate, NaiveTime};
+use chrono::NaiveDateTime;
+use std::str::FromStr;
 
 #[derive(FromForm)]
 pub struct Workshop {
@@ -27,16 +28,19 @@ impl Workshop {
     &self.location[..]
   }
 
-  pub fn date(&self) -> NaiveDate {
-    self.date.parse::<NaiveDate>().unwrap()
+  pub fn date(&self) -> NaiveDateTime {
+    let date_str = format!("{} 00:00:00", &self.date[..]);
+    NaiveDateTime::parse_from_str(&date_str, "%Y-%m-%d %H:%M:%S").unwrap()
   }
 
-  pub fn start_time(&self) -> NaiveTime {
-    self.start_time.parse::<NaiveTime>().unwrap()
+  pub fn start_time(&self) -> NaiveDateTime {
+    let time_str = format!("1970-01-01 {}:00", &self.start_time[..]);
+    NaiveDateTime::parse_from_str(&time_str, "%Y-%m-%d %H:%M:%S").unwrap()
   }
 
-  pub fn end_time(&self) -> NaiveTime {
-    self.end_time.parse::<NaiveTime>().unwrap()
+  pub fn end_time(&self) -> NaiveDateTime {
+    let time_str = format!("1970-01-01 {}:00", &self.end_time[..]);
+    NaiveDateTime::parse_from_str(&time_str, "%Y-%m-%d %H:%M:%S").unwrap()
   }
 
   pub fn private(&self) -> &bool {
