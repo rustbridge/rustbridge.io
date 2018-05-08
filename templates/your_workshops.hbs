@@ -1,7 +1,14 @@
 <div id="workshop-wrapper">
    <ul>
       {{#each items}}
-      <li>{{ name }} {{ location }} {{ date }}</li>
+      <li>
+        {{ name }}
+        {{ description }}
+        {{ date }}
+        {{ start_time }}
+        {{ end_time }}
+        {{ private }}
+      </li>
       {{/each}}
     </ul>
 </div>

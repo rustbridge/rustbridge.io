@@ -59,13 +59,14 @@ fn invites() -> Template {
 fn workshops(user_id: usize) -> Template {
     use diesel::prelude::*;
     use schema::workshops::dsl::*;
-  
+
     let connection = db::establish_connection();
 
     let title = page_title("Your Workshops");
     let items: Vec<WorkshopModel> = workshops
-      .filter(organizer.eq(user_id as i32))
-      .get_results(&connection).unwrap();
+        .filter(organizer.eq(user_id as i32))
+        .get_results(&connection)
+        .unwrap();
 
     let context = json!({
       "title": title,
