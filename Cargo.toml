@@ -14,7 +14,7 @@ serde = "1.0"
 
 diesel = { version = "1.0.0", features = ["postgres", "chrono"] }
 
-chrono = "0.4"
+chrono = { version = "0.4", features = ["serde"] }
 
 failure = "0.1.1"
 failure_derive = "0.1.1"
@@ -25,4 +25,4 @@ ring = "0.11.0"
 [dependencies.rocket_contrib]
 version = "*"
 default-features = false
-features = ["handlebars_templates"]
+features = ["handlebars_templates", "json"]

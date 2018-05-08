@@ -1,5 +1,5 @@
-use diesel::Connection;
 use diesel::pg::PgConnection;
+use diesel::Connection;
 use failure::{Error, ResultExt};
 use model::salt::Salt;
 use std::env;

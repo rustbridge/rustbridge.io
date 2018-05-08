@@ -24,31 +24,17 @@ pub fn html_from_file(path: &Path) -> Result<String, Error> {
     Ok(markdown_to_html(&content[..], &ComrakOptions::default()))
 }
 
-#[derive(Serialize)]
-struct Page<'c> {
-    title: &'c str,
-    parent: &'c str,
-    data: String,
-    sidebar: String,
-}
-
-impl<'c> Page<'c> {
-    pub fn new(title: &'c str, parent: &'c str, data: String, sidebar: String) -> Page<'c> {
-        Page {
-            title,
-            parent,
-            data,
-            sidebar,
-        }
-    }
-}
-
 fn render_page(title: &str, content: PathBuf, sidebar: PathBuf) -> Template {
     let template = || -> Result<Template, Error> {
         let page_content = html_from_file(&content.as_path())?;
         let sidebar_content = html_from_file(&sidebar.as_path())?;
 
-        let context = Page::new(title, "layout", page_content, sidebar_content);
+        let context = json!({
+          "title": title,
+          "parent": "layout",
+          "data": page_content,
+          "sidebar": sidebar_content,
+        });
 
         Ok(Template::render("page", &context))
     }().unwrap_or_else(|e| {

@@ -3,6 +3,8 @@
 
 pub extern crate comrak;
 pub extern crate rocket;
+
+#[macro_use]
 pub extern crate rocket_contrib;
 
 pub extern crate failure;

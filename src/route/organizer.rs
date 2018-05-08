@@ -10,7 +10,7 @@ use rocket::response::{Flash, Redirect};
 use rocket_contrib::Template;
 
 use data_encoding::HEXUPPER;
-use ring::{digest, rand, pbkdf2};
+use ring::{digest, pbkdf2, rand};
 
 static DIGEST_ALG: &'static digest::Algorithm = &digest::SHA256;
 const CREDENTIAL_LEN: usize = digest::SHA256_OUTPUT_LEN;
