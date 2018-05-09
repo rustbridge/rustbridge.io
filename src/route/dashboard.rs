@@ -10,50 +10,28 @@ use rocket_contrib::{Json, Template};
 use route::{content_path, html_from_file, organizer::UserCookie, page_title};
 use std::path::{Path, PathBuf};
 
-#[derive(Serialize)]
-struct DashBoard<'d> {
-    title: &'d str,
-    parent: &'d str,
-    content: &'d str,
-}
-
-impl<'d> DashBoard<'d> {
-    pub fn new(title: &'d str, parent: &'d str, content: &'d str) -> DashBoard<'d> {
-        DashBoard {
-            title,
-            parent,
-            content,
-        }
-    }
-}
-
-fn render_dashboard(title: &str, content: PathBuf) -> Template {
-    let template = || -> Result<Template, Error> {
-        let page_content = html_from_file(&content.as_path())?;
-
-        let context = DashBoard::new(title, "board/dashboard", &page_content);
-
-        Ok(Template::render("board/dashboard_content", &context))
-    }().unwrap_or_else(|e| {
-        println!("{}", e);
-        panic!();
-    });
-
-    template
-}
-
 fn home() -> Template {
     let title = page_title("DashBoard");
-    let content = content_path("dashboard_activity.md");
 
-    render_dashboard(&title, content)
+    let context = json!({
+      "title": title,
+      "parent": "board/dashboard",
+      "content": "",
+    });
+
+    Template::render("board/dashboard_content", &context)
 }
 
 fn invites() -> Template {
     let title = page_title("Invites");
-    let content = content_path("dashboard_activity.md");
 
-    render_dashboard(&title, content)
+    let context = json!({
+      "title": title,
+      "parent": "board/dashboard",
+      "content": "",
+    });
+
+    Template::render("board/dashboard_content", &context)
 }
 
 fn workshops(user_id: usize) -> Template {
