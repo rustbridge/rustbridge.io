@@ -96,7 +96,7 @@ pub fn dashboard(user: UserCookie, page: PathBuf) -> Template {
         "home" => home(),
         "workshops" => workshops(user.0),
         "invites" => invites(),
-        "create_workshop" => create_workshop(),
+        "create-workshop" => create_workshop(),
         _ => home(),
     }
 }
