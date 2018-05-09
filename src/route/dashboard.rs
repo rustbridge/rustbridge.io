@@ -31,9 +31,9 @@ fn render_dashboard(title: &str, content: PathBuf) -> Template {
     let template = || -> Result<Template, Error> {
         let page_content = html_from_file(&content.as_path())?;
 
-        let context = DashBoard::new(title, "dashboard", &page_content);
+        let context = DashBoard::new(title, "board/dashboard", &page_content);
 
-        Ok(Template::render("dashboard_content", &context))
+        Ok(Template::render("board/dashboard_content", &context))
     }().unwrap_or_else(|e| {
         println!("{}", e);
         panic!();
@@ -70,12 +70,12 @@ fn workshops(user_id: usize) -> Template {
 
     let context = json!({
       "title": title,
-      "parent": "dashboard",
-      "content": "your_workshops",
+      "parent": "board/dashboard",
+      "content": "board/your_workshops",
       "items": items,
     });
 
-    Template::render("dashboard_content", &context)
+    Template::render("board/dashboard_content", &context)
 }
 
 fn create_workshop() -> Template {
@@ -83,11 +83,11 @@ fn create_workshop() -> Template {
 
     let context = json!({
       "title": title,
-      "parent": "dashboard",
-      "content": "post_workshop",
+      "parent": "board/dashboard",
+      "content": "board/post_workshop",
     });
 
-    Template::render("dashboard_content", &context)
+    Template::render("board/dashboard_content", &context)
 }
 
 #[get("/dashboard/<page..>")]
