@@ -31,12 +31,12 @@ fn render_page(title: &str, content: PathBuf, sidebar: PathBuf) -> Template {
 
         let context = json!({
           "title": title,
-          "parent": "layout",
+          "parent": "main_page/layout",
           "data": page_content,
           "sidebar": sidebar_content,
         });
 
-        Ok(Template::render("page", &context))
+        Ok(Template::render("main_page/page", &context))
     }().unwrap_or_else(|e| {
         println!("{}", e);
         panic!();
