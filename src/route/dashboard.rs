@@ -1,14 +1,10 @@
-use chrono::{NaiveDate, NaiveTime};
 use db;
-use failure::Error;
 use form::workshop::Workshop;
 use model::workshop::Workshop as WorkshopModel;
-use rocket::{
-    request::Form, response::{NamedFile, Redirect},
-};
-use rocket_contrib::{Json, Template};
-use route::{content_path, html_from_file, organizer::UserCookie, page_title};
-use std::path::{Path, PathBuf};
+use rocket::{request::Form, response::Redirect};
+use rocket_contrib::Template;
+use route::{organizer::UserCookie, page_title};
+use std::path::PathBuf;
 
 fn home() -> Template {
     let title = page_title("DashBoard");

@@ -1,5 +1,4 @@
 use chrono::NaiveDateTime;
-use std::str::FromStr;
 
 #[derive(FromForm)]
 pub struct Workshop {
