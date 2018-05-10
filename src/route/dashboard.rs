@@ -1,6 +1,6 @@
 use db;
 use form::workshop::Workshop;
-use model::workshop::Workshop as WorkshopModel;
+use model::{invite::Invite as InviteModel, workshop::Workshop as WorkshopModel};
 use rocket::{request::Form, response::Redirect};
 use rocket_contrib::Template;
 use route::{organizer::UserCookie, page_title};
@@ -18,8 +18,22 @@ fn home() -> Template {
     Template::render("board/dashboard_content", &context)
 }
 
-fn invites() -> Template {
+fn invites(user_id: usize) -> Template {
+    use diesel::prelude::*;
+    use schema::invites::dsl::*;
+    use schema::workshops::dsl::*;
+
+    let connection = db::establish_connection();
+
     let title = page_title("Invites");
+    let items: Vec<InviteModel> = invites
+      .inner_join(workshops)
+      .filter(organizer.eq(user_id as i32))
+      .get_results(&connection)
+      .unwrap()
+      .into_iter()
+      .map(|(invite, _): (InviteModel, WorkshopModel)| invite)
+      .collect();
 
     let context = json!({
       "title": title,
@@ -69,7 +83,7 @@ pub fn dashboard(user: UserCookie, page: PathBuf) -> Template {
     match &page.to_string_lossy().into_owned()[..] {
         "home" => home(),
         "workshops" => workshops(user.0),
-        "invites" => invites(),
+        "invites" => invites(user.0),
         "create-workshop" => create_workshop(),
         _ => home(),
     }
