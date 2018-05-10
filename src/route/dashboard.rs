@@ -27,13 +27,13 @@ fn invites(user_id: usize) -> Template {
 
     let title = page_title("Invites");
     let items: Vec<InviteModel> = invites
-      .inner_join(workshops)
-      .filter(organizer.eq(user_id as i32))
-      .get_results(&connection)
-      .unwrap()
-      .into_iter()
-      .map(|(invite, _): (InviteModel, WorkshopModel)| invite)
-      .collect();
+        .inner_join(workshops)
+        .filter(organizer.eq(user_id as i32))
+        .get_results(&connection)
+        .unwrap()
+        .into_iter()
+        .map(|(invite, _): (InviteModel, WorkshopModel)| invite)
+        .collect();
 
     let context = json!({
       "title": title,

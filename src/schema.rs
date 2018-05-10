@@ -48,9 +48,4 @@ table! {
 joinable!(invites -> workshops (workshop_id));
 joinable!(workshops -> users (organizer));
 
-allow_tables_to_appear_in_same_query!(
-    invites,
-    salts,
-    users,
-    workshops,
-);
+allow_tables_to_appear_in_same_query!(invites, salts, users, workshops,);
