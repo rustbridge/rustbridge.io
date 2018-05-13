@@ -4,10 +4,12 @@ pub mod organizer;
 use failure::Error;
 use failure::ResultExt;
 
+use db;
 use std::fs;
 use std::io::Read;
 use std::path::{Path, PathBuf};
 
+use model::workshop::Workshop as WorkshopModel;
 use comrak::{markdown_to_html, ComrakOptions};
 
 use rocket::response::NamedFile;
@@ -59,12 +61,17 @@ pub fn static_asset(asset: PathBuf) -> Option<NamedFile> {
 }
 
 #[get("/")]
-pub fn about() -> Template {
-    let title = page_title("About");
-    let content = content_path("about.md");
-    let sidebar = content_path("workshops.md");
+pub fn about() -> Result<Template, Error> {
+  let title = page_title("About");
+  let content = html_from_file(content_path("about.md").as_path())?;
+    let context = json!({
+      "title": title,
+      "parent": "main_page/layout",
+      "data": content,
+      "items": upcoming_workshops(),
+    });
 
-    render_page(&title[..], content, sidebar)
+    Ok(Template::render("main_page/page", &context))
 }
 
 #[get("/learn")]
@@ -83,4 +90,15 @@ pub fn volunteer() -> Template {
     let sidebar = content_path("resources.md");
 
     render_page(&title[..], content, sidebar)
+}
+
+fn upcoming_workshops() -> Vec<WorkshopModel> {
+    use diesel::prelude::*;
+    use schema::workshops::dsl::*;
+
+    let connection = db::establish_connection(); 
+    workshops
+        .filter(private.eq(false))
+        .get_results(&connection)
+        .unwrap()
 }
