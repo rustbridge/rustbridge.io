@@ -38,7 +38,8 @@ fn invites(user_id: usize) -> Template {
     let context = json!({
       "title": title,
       "parent": "board/dashboard",
-      "content": "",
+      "content": "board/your_invites",
+      "items": items,
     });
 
     Template::render("board/dashboard_content", &context)
