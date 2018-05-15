@@ -67,6 +67,27 @@ pub fn volunteer() -> Result<Template, Error> {
     Ok(Template::render("main_page/page", &context))
 }
 
+#[post("/dashboard/request-invite", data = "<invite>")]
+pub fn post_invite_request(invite: Form<Invite>) -> Redirect {
+    use diesel::prelude::*;
+    use schema::invites::dsl::*;
+
+    let connection = db::establish_connection();
+
+    let new_invite = (
+        workshop.eq(invite.get().id()),
+        email.eq(invite.get().email()),
+        attending.eq(false),
+        pending.eq(true),
+    );
+
+    let _ = ::diesel::insert_into(invites)
+        .values(&new_invite)
+        .execute(&connection);
+
+    Redirect::to("/")
+}
+
 fn upcoming_workshops() -> Vec<WorkshopModel> {
     use diesel::prelude::*;
     use schema::workshops::dsl::*;
