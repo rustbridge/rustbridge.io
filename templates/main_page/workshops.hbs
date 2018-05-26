@@ -3,13 +3,16 @@
     <h3>Upcoming Workshops</h3>
     {{#each items}}
     <li>
-      <div class="request-invite-container-container">
         {{{ name }}}
         <p>{{{ description }}}</p>
         <form method="POST" action="/request-invite" >
-          <button class="link" type="submit">Get Invite</button>
+          <div class="request-invite-container-container">
+            <label  class="sr-only" for="invite-email">Email</label>
+            <input class="hidden" for="invite-id" type=text" value={{{ id }}} name="id" >
+            <input  class="form-control" type="text" placeholder="youremail@here" name="email" >
+            <button class="link" type="submit">Get Invite</button>
+          </div>
         </form>
-      </div>
     </li>
     {{/each}}
   </ul>
