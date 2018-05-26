@@ -1,6 +1,6 @@
-use db;
-use form::workshop::Workshop;
-use model::{invite::Invite as InviteModel, workshop::Workshop as WorkshopModel};
+use failure::Error;
+use form::workshop::Workshop as WorkshopForm;
+use model::{invite::Invite, workshop::Workshop};
 use rocket::{request::Form, response::Redirect};
 use rocket_contrib::Template;
 use route::{organizer::UserCookie, page_title};
@@ -19,6 +19,7 @@ fn home() -> Template {
 }
 
 fn invites(user_id: usize) -> Template {
+    use db;
     use diesel::prelude::*;
     use schema::invites::dsl::*;
     use schema::workshops::dsl::*;
@@ -26,33 +27,34 @@ fn invites(user_id: usize) -> Template {
     let connection = db::establish_connection();
 
     let title = page_title("Invites");
-    let items: Vec<InviteModel> = invites
+    let items: Vec<(Invite, Workshop)> = invites
         .inner_join(workshops)
         .filter(organizer.eq(user_id as i32))
         .get_results(&connection)
-        .unwrap()
-        .into_iter()
-        .map(|(invite, _): (InviteModel, WorkshopModel)| invite)
-        .collect();
+        .unwrap();
+
+    let user_invites: Vec<&Invite> = items.iter().map(|(a, _)| a).collect();
 
     let context = json!({
       "title": title,
       "parent": "board/dashboard",
       "content": "board/your_invites",
-      "items": items,
+      "items": user_invites,
     });
 
     Template::render("board/dashboard_content", &context)
 }
 
 fn workshops(user_id: usize) -> Template {
+    use db;
     use diesel::prelude::*;
     use schema::workshops::dsl::*;
 
     let connection = db::establish_connection();
 
     let title = page_title("Your Workshops");
-    let items: Vec<WorkshopModel> = workshops
+
+    let items: Vec<Workshop> = workshops
         .filter(organizer.eq(user_id as i32))
         .get_results(&connection)
         .unwrap();
@@ -96,26 +98,14 @@ pub fn unauthenticated_dashboard(_page: PathBuf) -> Redirect {
 }
 
 #[post("/dashboard/workshop", data = "<workshop>")]
-pub fn post_workshop(user: UserCookie, workshop: Form<Workshop>) -> Option<Redirect> {
-    use diesel::prelude::*;
-    use schema::workshops::dsl::*;
+pub fn post_workshop(user: UserCookie, workshop: Form<WorkshopForm>) -> Result<Redirect, Error> {
+    use model::{workshop::NewWorkshop, Sanitize, Resource, Validate};
 
-    let connection = db::establish_connection();
+    let mut new_workshop = NewWorkshop::from(&workshop);
+    new_workshop.organizer = Some(user.0 as i32);
+    new_workshop.validate()?;
+    new_workshop.sanitize()?;
+    new_workshop.save()?;
 
-    let new_workshop = (
-        name.eq(workshop.get().name()),
-        organizer.eq(user.0 as i32),
-        description.eq(workshop.get().description()),
-        location.eq(workshop.get().location()),
-        event_date.eq(workshop.get().date()),
-        start_time.eq(workshop.get().start_time()),
-        end_time.eq(workshop.get().end_time()),
-        private.eq(workshop.get().private()),
-    );
-
-    let _ = ::diesel::insert_into(workshops)
-        .values(&new_workshop)
-        .execute(&connection);
-
-    Some(Redirect::to("/dashboard/workshops"))
+    Ok(Redirect::to("/dashboard/workshops"))
 }

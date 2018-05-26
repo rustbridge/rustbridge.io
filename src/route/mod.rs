@@ -4,15 +4,17 @@ pub mod organizer;
 use failure::Error;
 use failure::ResultExt;
 
-use db;
 use std::fs;
 use std::io::Read;
 use std::path::{Path, PathBuf};
 
 use comrak::{markdown_to_html, ComrakOptions};
-use model::workshop::Workshop as WorkshopModel;
+use form::invite::Invite;
+use model::workshop::Workshop;
 
-use rocket::response::NamedFile;
+use rocket::{
+    request::Form, response::{NamedFile, Redirect},
+};
 use rocket_contrib::Template;
 
 #[get("/static/<asset..>", rank = 1)]
@@ -67,35 +69,26 @@ pub fn volunteer() -> Result<Template, Error> {
     Ok(Template::render("main_page/page", &context))
 }
 
-#[post("/dashboard/request-invite", data = "<invite>")]
-pub fn post_invite_request(invite: Form<Invite>) -> Redirect {
-    use diesel::prelude::*;
-    use schema::invites::dsl::*;
+#[post("/request-invite", data = "<invite>")]
+pub fn post_invite_request(invite: Form<Invite>) -> Result<Redirect, Error> {
+    use model::{invite::NewInvite, Sanitize, Resource, Validate};
 
-    let connection = db::establish_connection();
+    let mut new_invite = NewInvite::from(&invite);
+    new_invite.validate()?;
+    new_invite.sanitize()?;
+    new_invite.save()?;
 
-    let new_invite = (
-        workshop.eq(invite.get().id()),
-        email.eq(invite.get().email()),
-        attending.eq(false),
-        pending.eq(true),
-    );
-
-    let _ = ::diesel::insert_into(invites)
-        .values(&new_invite)
-        .execute(&connection);
-
-    Redirect::to("/")
+    Ok(Redirect::to("/"))
 }
 
-fn upcoming_workshops() -> Vec<WorkshopModel> {
+fn upcoming_workshops() -> Vec<Workshop> {
+    use db;
     use diesel::prelude::*;
     use schema::workshops::dsl::*;
 
-    let connection = db::establish_connection();
     workshops
         .filter(private.eq(false))
-        .get_results(&connection)
+        .get_results(&db::establish_connection())
         .unwrap()
 }
 
