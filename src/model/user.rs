@@ -1,6 +1,6 @@
 use chrono::NaiveDateTime;
 
-#[derive(Queryable)]
+#[derive(Queryable, Serialize)]
 pub struct User {
     pub id: i32,
     pub email: String,
