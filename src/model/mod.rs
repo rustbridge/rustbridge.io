@@ -14,6 +14,9 @@ pub trait Validate {
 }
 
 pub trait Resource {
+    type Model;
+    fn get_by_id(&self) -> Result<Self::Model, Error>;
+    fn get_all(&self) -> Result<Vec<Self::Model>, Error>;
     fn save(&self) -> Result<(), Error>;
     fn update(&self) -> Result<(), Error>;
     fn delete(&self) -> Result<(), Error>; 
