@@ -1,20 +1,20 @@
-use route::page_title;
+use db;
 use form::login::Login;
 use model::user::User;
-use db;
+use route::page_title;
 
-use rocket_contrib::Template;
-use rocket::request::{FlashMessage, Form, FromRequest, Outcome, Request};
 use rocket::http::{Cookie, Cookies};
-use rocket::response::{Flash, Redirect};
 use rocket::outcome::IntoOutcome;
+use rocket::request::{FlashMessage, Form, FromRequest, Outcome, Request};
+use rocket::response::{Flash, Redirect};
+use rocket_contrib::Template;
 
 use data_encoding::HEXUPPER;
-use ring::{digest, rand, pbkdf2};
+use ring::{digest, pbkdf2};
 
 static DIGEST_ALG: &'static digest::Algorithm = &digest::SHA256;
 const CREDENTIAL_LEN: usize = digest::SHA256_OUTPUT_LEN;
-pub type Credential = [u8; CREDENTIAL_LEN];
+type Credential = [u8; CREDENTIAL_LEN];
 
 fn salt(username: &str) -> Result<Vec<u8>, ()> {
     let db_salt = db::salt_component().map_err(|_| ())?;
@@ -26,29 +26,17 @@ fn salt(username: &str) -> Result<Vec<u8>, ()> {
     Ok(res)
 }
 
-fn verify_password(email: &str, pw: &str, expected_pw_hash: &str) -> bool {
+fn verify_password(email: &str, pw: &str, expected_hash: &str) -> bool {
     let pw_salt = salt(email).unwrap();
+    let mut actual: Credential = [0u8; CREDENTIAL_LEN];
 
-    let mut to_store: Credential = [0u8; CREDENTIAL_LEN];
+    pbkdf2::derive(DIGEST_ALG, 100_000, &pw_salt, pw.as_bytes(), &mut actual);
+    let actual_hash = HEXUPPER.encode(&actual);
 
-    pbkdf2::derive(DIGEST_ALG, 100_000, &pw_salt, pw.as_bytes(), &mut to_store);
-
-    HEXUPPER.encode(&to_store) == expected_pw_hash.to_string()
+    &actual_hash == expected_hash
 }
 
-#[derive(Serialize)]
-struct LoginPage<'c> {
-    title: &'c str,
-    flash: Option<&'c str>,
-}
-
-impl<'c> LoginPage<'c> {
-    pub fn new(title: &'c str, flash: Option<&'c str>) -> LoginPage<'c> {
-        LoginPage { title, flash }
-    }
-}
-
-struct UserCookie(usize);
+pub struct UserCookie(pub usize);
 
 impl<'a, 'r> FromRequest<'a, 'r> for UserCookie {
     type Error = ();
@@ -67,20 +55,18 @@ impl<'a, 'r> FromRequest<'a, 'r> for UserCookie {
 fn login_page(flash: Option<FlashMessage>) -> Template {
     let title = page_title("Login");
 
-    let context: LoginPage;
-
-    if let Some(ref msg) = flash {
-        context = LoginPage::new(&title[..], Some(msg.msg()));
+    let context = if let Some(ref msg) = flash {
+        json!({ "title": title, "flash": msg.msg() })
     } else {
-        context = LoginPage::new(&title[..], None);
-    }
+        json!({ "title": title })
+    };
 
     Template::render("login", &context)
 }
 
 #[get("/login")]
 fn login_user(_user: UserCookie) -> Redirect {
-    Redirect::to("/dashboard")
+    Redirect::to("/dashboard/home")
 }
 
 #[post("/login", data = "<login>")]
@@ -107,4 +93,10 @@ fn login_submit<'r>(mut cookies: Cookies, login: Form<Login>) -> Result<Redirect
 
     cookies.add_private(Cookie::new("user_id", user.id.to_string()));
     Ok(Redirect::to("/login"))
+}
+
+#[get("/logout")]
+fn logout(mut cookies: Cookies) -> Redirect {
+    cookies.remove_private(Cookie::named("user_id"));
+    Redirect::to("/")
 }

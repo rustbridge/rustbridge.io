@@ -1,19 +1,90 @@
+pub mod dashboard;
 pub mod organizer;
 
-use failure::ResultExt;
 use failure::Error;
+use failure::ResultExt;
 
-use std::path::{Path, PathBuf};
-use std::io::Read;
 use std::fs;
+use std::io::Read;
+use std::path::{Path, PathBuf};
 
 use comrak::{markdown_to_html, ComrakOptions};
+use form::invite::Invite as InviteForm;
+use model::workshop::WorkshopModel;
 
-use rocket::response::NamedFile;
+use rocket::{
+    request::Form, response::{NamedFile, Redirect},
+};
 use rocket_contrib::Template;
 
-fn html_from_file(path: &Path) -> Result<String, Error> {
-    let mut file = fs::File::open(&path)
+#[get("/static/<asset..>", rank = 1)]
+pub fn static_asset(asset: PathBuf) -> Option<NamedFile> {
+    NamedFile::open(Path::new("static/").join(asset)).ok()
+}
+
+#[get("/")]
+pub fn about() -> Result<Template, Error> {
+    use model::{workshop::Workshop, Resource};
+    let page_content = markdown(content_path("about.md").as_path())?;
+
+    type T<'t> = <Workshop<'t> as Resource>::Model;
+    let items: Vec<T> = Workshop::read_all()?;
+
+    let context = json!({
+      "title": page_title("About"),
+      "parent": "main_page/layout",
+      "sidebar": "main_page/workshops",
+      "content": page_content,
+      "items": items,
+    });
+
+    Ok(Template::render("main_page/page", &context))
+}
+
+#[get("/learn")]
+pub fn learn() -> Result<Template, Error> {
+    let page_content = markdown(content_path("learn.md").as_path())?;
+    let sidebar = markdown(content_path("resources.md").as_path())?;
+
+    let context = json!({
+      "title": page_title("Learn"),
+      "parent": "main_page/layout",
+      "sidebar": "main_page/sidebar",
+      "content": page_content,
+      "sidebar_content": sidebar,
+    });
+
+    Ok(Template::render("main_page/page", &context))
+}
+
+#[get("/volunteer")]
+pub fn volunteer() -> Result<Template, Error> {
+    let page_content = markdown(content_path("volunteer.md").as_path())?;
+    let sidebar = markdown(content_path("resources.md").as_path())?;
+
+    let context = json!({
+      "title": page_title("Volunteer"),
+      "parent": "main_page/layout",
+      "sidebar": "main_page/sidebar",
+      "content": page_content,
+      "sidebar_content": sidebar,
+    });
+
+    Ok(Template::render("main_page/page", &context))
+}
+
+#[post("/request-invite", data = "<invite>")]
+pub fn post_invite_request(invite: Form<InviteForm>) -> Result<Redirect, Error> {
+    use model::{invite::Invite, Resource};
+
+    let mut new_invite = Invite::from(&invite);
+    new_invite.create()?;
+
+    Ok(Redirect::to("/"))
+}
+
+fn markdown(path: &Path) -> Result<String, Error> {
+    let mut file = fs::File::open(path)
         .with_context(|e| format!("Failed to open file: `{}`\n => {}", &path.display(), e))?;
 
     let mut content = String::new();
@@ -23,78 +94,10 @@ fn html_from_file(path: &Path) -> Result<String, Error> {
     Ok(markdown_to_html(&content[..], &ComrakOptions::default()))
 }
 
-#[derive(Serialize)]
-struct Page<'c> {
-    title: &'c str,
-    parent: &'c str,
-    data: String,
-    sidebar: String,
-}
-
-impl<'c> Page<'c> {
-    pub fn new(title: &'c str, parent: &'c str, data: String, sidebar: String) -> Page<'c> {
-        Page {
-            title,
-            parent,
-            data,
-            sidebar,
-        }
-    }
-}
-
-fn render_page(title: &str, content: PathBuf, sidebar: PathBuf) -> Template {
-    let template = || -> Result<Template, Error> {
-        let page_content = html_from_file(&content.as_path())?;
-        let sidebar_content = html_from_file(&sidebar.as_path())?;
-
-        let context = Page::new(title, "layout", page_content, sidebar_content);
-
-        Ok(Template::render("page", &context))
-    }()
-        .unwrap_or_else(|e| {
-        println!("{}", e);
-        panic!();
-    });
-
-    template
-}
-
 pub fn page_title(current_page: &str) -> String {
     format!("RustBridge - {}", current_page)
 }
 
 pub fn content_path(file: &str) -> PathBuf {
     PathBuf::from("data").join(file)
-}
-
-#[get("/static/<asset..>", rank = 1)]
-pub fn static_asset(asset: PathBuf) -> Option<NamedFile> {
-    NamedFile::open(Path::new("static/").join(asset)).ok()
-}
-
-#[get("/")]
-pub fn about() -> Template {
-    let title = page_title("About");
-    let content = content_path("about.md");
-    let sidebar = content_path("workshops.md");
-
-    render_page(&title[..], content, sidebar)
-}
-
-#[get("/learn")]
-pub fn learn() -> Template {
-    let title = page_title("Learn");
-    let content = content_path("learn.md");
-    let sidebar = content_path("resources.md");
-
-    render_page(&title[..], content, sidebar)
-}
-
-#[get("/volunteer")]
-pub fn volunteer() -> Template {
-    let title = page_title("Volunteer");
-    let content = content_path("volunteer.md");
-    let sidebar = content_path("resources.md");
-
-    render_page(&title[..], content, sidebar)
 }

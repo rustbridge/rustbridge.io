@@ -1,0 +1,19 @@
+<div id="mainpage_sidebar">
+  <ul>
+    <h3>Upcoming Workshops</h3>
+    {{#each items}}
+    <li>
+        {{{ name }}}
+        <p>{{{ description }}}</p>
+        <form method="POST" action="/request-invite" >
+          <div class="request-invite-container-container">
+            <label  class="sr-only" for="invite-email">Email</label>
+            <input class="hidden" for="invite-id" type=text" value={{{ id }}} name="id" >
+            <input  class="form-control" type="text" placeholder="youremail@here" name="email" >
+            <button class="link" type="submit">Get Invite</button>
+          </div>
+        </form>
+    </li>
+    {{/each}}
+  </ul>
+</div>

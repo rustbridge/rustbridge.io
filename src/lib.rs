@@ -3,8 +3,11 @@
 
 pub extern crate comrak;
 pub extern crate rocket;
+
+#[macro_use]
 pub extern crate rocket_contrib;
 
+#[macro_use]
 pub extern crate failure;
 pub extern crate failure_derive;
 
@@ -13,16 +16,17 @@ pub extern crate serde_derive;
 
 #[macro_use]
 extern crate diesel;
+extern crate chrono;
 
 extern crate data_encoding;
 extern crate ring;
 
 pub mod db;
+pub mod form;
 pub mod model;
+pub mod route;
 pub mod schema;
 pub mod website;
-pub mod route;
-pub mod form;
 
 #[cfg(test)]
 mod tests {}
