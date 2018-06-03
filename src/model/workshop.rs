@@ -1,10 +1,14 @@
 use chrono::NaiveDateTime;
-use failure::{Error, ResultExt, err_msg};
+use failure::{err_msg, Error, ResultExt};
 use form::workshop::Workshop as WorkshopForm;
 use rocket::request::Form;
 
-#[derive(Queryable, Serialize, Debug)]
-pub struct Workshop {
+/// # WorkshopModel
+///
+/// WorkshopModel represents an entry in the workshops table
+#[derive(Identifiable, Queryable, Serialize, Debug)]
+#[table_name = "workshops"]
+pub struct WorkshopModel {
     pub id: i32,
     pub name: String,
     pub organizer: i32,
@@ -18,75 +22,111 @@ pub struct Workshop {
     pub updated_at: NaiveDateTime,
 }
 
-use schema::workshops;
-
-#[derive(Insertable, Deserialize, Debug)]
-#[table_name = "workshops"]
-pub struct NewWorkshop<'ws> {
-    pub name: &'ws str,
-    pub organizer: Option<i32>,
-    pub description: &'ws str,
-    pub location: &'ws str,
-    #[column_name = "event_date"]
-    pub date: NaiveDateTime,
-    pub start_time: NaiveDateTime,
-    pub end_time: NaiveDateTime,
-    pub private: bool,
-}
-
-impl<'ws> From<&'ws Form<'ws, WorkshopForm>> for NewWorkshop<'ws> {
+/// Convert a WorkshopForm into a Workshop
+impl<'ws> From<&'ws Form<'ws, WorkshopForm>> for Workshop<'ws> {
     fn from(form: &'ws Form<'ws, WorkshopForm>) -> Self {
-        NewWorkshop {
-            name: form.get().name(),
+        Workshop {
+            name: Some(form.get().name()),
             organizer: None,
-            description: form.get().description(),
-            location: form.get().location(),
-            date: form.get().date(),
-            start_time: form.get().start_time(),
-            end_time: form.get().end_time(),
-            private: *form.get().private(),
+            description: Some(form.get().description()),
+            location: Some(form.get().location()),
+            date: Some(form.get().date()),
+            start_time: Some(form.get().start_time()),
+            end_time: Some(form.get().end_time()),
+            private: Some(*form.get().private()),
         }
     }
 }
 
-impl<'ws> super::Validate for NewWorkshop<'ws> {
-    fn validate(&mut self) -> Result<(), Error> {
-      if self.organizer == None {
-        bail!("no organizer specified");
-      }
-      Ok(())
-    }
+use schema::workshops;
+
+#[derive(Insertable, Deserialize, AsChangeset, Debug)]
+#[table_name = "workshops"]
+pub struct Workshop<'wu> {
+    pub name: Option<&'wu str>,
+    pub organizer: Option<i32>,
+    pub description: Option<&'wu str>,
+    pub location: Option<&'wu str>,
+    #[column_name = "event_date"]
+    pub date: Option<NaiveDateTime>,
+    pub start_time: Option<NaiveDateTime>,
+    pub end_time: Option<NaiveDateTime>,
+    pub private: Option<bool>,
 }
 
-impl<'ws> super::Sanitize for NewWorkshop<'ws> {
-    fn sanitize(&mut self) -> Result<(), Error> {
+impl<'ws> super::Validate for Workshop<'ws> {
+    fn validate(&self) -> Result<(), Error> {
+        if self.organizer == None {
+            bail!("no organizer specified");
+        }
         Ok(())
     }
 }
 
-impl<'ws> super::Resource for NewWorkshop<'ws> {
-    fn save(&self) -> Result<(), Error> {
-        use db;
-        use diesel::RunQueryDsl;
+impl<'ws> super::Sanitize for Workshop<'ws> {
+    fn sanitize(&self) -> Result<(), Error> {
+        Ok(())
+    }
+}
 
-        let _ = ::diesel::insert_into(workshops::table)
+use db;
+
+impl<'ws> super::Resource for Workshop<'ws> {
+    type Model = WorkshopModel;
+
+    fn create(&self) -> Result<(), Error> {
+        use super::{Sanitize, Validate};
+        use diesel::RunQueryDsl;
+        use schema::workshops::dsl::*;
+
+        self.validate()?;
+        self.sanitize()?;
+
+        let _ = ::diesel::insert_into(workshops)
             .values(self)
             .execute(&db::establish_connection());
 
         Ok(())
     }
 
-    fn update(&self) -> Result<(), Error> {
-      use db;
-      use diesel::RunQueryDsl;
+    fn read_all() -> Result<Vec<Self::Model>, Error> {
+        use diesel::prelude::*;
+        use schema::workshops::dsl::*;
 
-      Ok(())
+        let items: Vec<Self::Model> = workshops.get_results(&db::establish_connection())?;
+
+        Ok(items)
     }
 
-    fn delete(&self) -> Result<(), Error> {
-      use db;
-      use diesel::RunQueryDsl;
+    fn read_one(model_id: usize) -> Result<Self::Model, Error> {
+        use diesel::prelude::*;
+        use schema::workshops::dsl::*;
 
-      Ok(())
+        let item: Self::Model = workshops
+            .filter(id.eq(model_id as i32))
+            .get_result(&db::establish_connection())?;
+
+        Ok(item)
+    }
+
+    fn update(&self, model_id: usize) -> Result<(), Error> {
+        use diesel::prelude::*;
+        use schema::workshops::dsl::*;
+
+        let existing_workshop = Self::read_one(model_id)?;
+        ::diesel::update(&existing_workshop)
+            .set(self)
+            .execute(&db::establish_connection())?;
+
+        Ok(())
+    }
+
+    fn delete(&self, model_id: usize) -> Result<(), Error> {
+        use diesel::prelude::*;
+
+        let existing_workshop = Self::read_one(model_id)?;
+        ::diesel::delete(&existing_workshop).execute(&db::establish_connection())?;
+
+        Ok(())
     }
 }

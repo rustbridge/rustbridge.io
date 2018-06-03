@@ -9,8 +9,8 @@ use std::io::Read;
 use std::path::{Path, PathBuf};
 
 use comrak::{markdown_to_html, ComrakOptions};
-use form::invite::Invite;
-use model::workshop::Workshop;
+use form::invite::Invite as InviteForm;
+use model::workshop::WorkshopModel;
 
 use rocket::{
     request::Form, response::{NamedFile, Redirect},
@@ -24,14 +24,18 @@ pub fn static_asset(asset: PathBuf) -> Option<NamedFile> {
 
 #[get("/")]
 pub fn about() -> Result<Template, Error> {
+    use model::{workshop::Workshop, Resource};
     let page_content = markdown(content_path("about.md").as_path())?;
+
+    type T<'t> = <Workshop<'t> as Resource>::Model;
+    let items: Vec<T> = Workshop::read_all()?;
 
     let context = json!({
       "title": page_title("About"),
       "parent": "main_page/layout",
       "sidebar": "main_page/workshops",
       "content": page_content,
-      "items": upcoming_workshops(),
+      "items": items,
     });
 
     Ok(Template::render("main_page/page", &context))
@@ -70,26 +74,13 @@ pub fn volunteer() -> Result<Template, Error> {
 }
 
 #[post("/request-invite", data = "<invite>")]
-pub fn post_invite_request(invite: Form<Invite>) -> Result<Redirect, Error> {
-    use model::{invite::NewInvite, Sanitize, Resource, Validate};
+pub fn post_invite_request(invite: Form<InviteForm>) -> Result<Redirect, Error> {
+    use model::{invite::Invite, Resource};
 
-    let mut new_invite = NewInvite::from(&invite);
-    new_invite.validate()?;
-    new_invite.sanitize()?;
-    new_invite.save()?;
+    let mut new_invite = Invite::from(&invite);
+    new_invite.create()?;
 
     Ok(Redirect::to("/"))
-}
-
-fn upcoming_workshops() -> Vec<Workshop> {
-    use db;
-    use diesel::prelude::*;
-    use schema::workshops::dsl::*;
-
-    workshops
-        .filter(private.eq(false))
-        .get_results(&db::establish_connection())
-        .unwrap()
 }
 
 fn markdown(path: &Path) -> Result<String, Error> {

@@ -1,16 +1,13 @@
 use failure::Error;
 use form::workshop::Workshop as WorkshopForm;
-use model::{invite::Invite, workshop::Workshop};
 use rocket::{request::Form, response::Redirect};
 use rocket_contrib::Template;
 use route::{organizer::UserCookie, page_title};
 use std::path::PathBuf;
 
 fn home() -> Template {
-    let title = page_title("DashBoard");
-
     let context = json!({
-      "title": title,
+      "title": page_title("DashBoard"),
       "parent": "board/dashboard",
       "content": "",
     });
@@ -19,24 +16,30 @@ fn home() -> Template {
 }
 
 fn invites(user_id: usize) -> Template {
-    use db;
-    use diesel::prelude::*;
-    use schema::invites::dsl::*;
-    use schema::workshops::dsl::*;
+    use model::{invite::Invite, workshop::Workshop, Resource};
 
-    let connection = db::establish_connection();
+    type T<'t> = <Workshop<'t> as Resource>::Model;
+    let items: Vec<T> = Workshop::read_all()
+        .unwrap()
+        .into_iter()
+        .filter(|ws| ws.organizer == (user_id as i32))
+        .collect();
 
-    let title = page_title("Invites");
-    let items: Vec<(Invite, Workshop)> = invites
-        .inner_join(workshops)
-        .filter(organizer.eq(user_id as i32))
-        .get_results(&connection)
-        .unwrap();
+    type U<'u> = <Invite<'u> as Resource>::Model;
+    let invites: Vec<U> = Invite::read_all().unwrap();
+    let mut user_invites = vec![];
 
-    let user_invites: Vec<&Invite> = items.iter().map(|(a, _)| a).collect();
+    items.iter().for_each(|ws| {
+        user_invites.extend(
+            invites
+                .iter()
+                .filter(|i| i.workshop_id == ws.id)
+                .collect::<Vec<&U>>(),
+        );
+    });
 
     let context = json!({
-      "title": title,
+      "title": page_title("Invites"),
       "parent": "board/dashboard",
       "content": "board/your_invites",
       "items": user_invites,
@@ -46,21 +49,17 @@ fn invites(user_id: usize) -> Template {
 }
 
 fn workshops(user_id: usize) -> Template {
-    use db;
-    use diesel::prelude::*;
-    use schema::workshops::dsl::*;
+    use model::{workshop::Workshop, Resource};
 
-    let connection = db::establish_connection();
-
-    let title = page_title("Your Workshops");
-
-    let items: Vec<Workshop> = workshops
-        .filter(organizer.eq(user_id as i32))
-        .get_results(&connection)
-        .unwrap();
+    type T<'t> = <Workshop<'t> as Resource>::Model;
+    let items: Vec<T> = Workshop::read_all()
+        .unwrap()
+        .into_iter()
+        .filter(|ws| ws.organizer == (user_id as i32))
+        .collect();
 
     let context = json!({
-      "title": title,
+      "title": page_title("Your Workshops"),
       "parent": "board/dashboard",
       "content": "board/your_workshops",
       "items": items,
@@ -70,10 +69,8 @@ fn workshops(user_id: usize) -> Template {
 }
 
 fn create_workshop() -> Template {
-    let title = page_title("Create Workshop");
-
     let context = json!({
-      "title": title,
+      "title": page_title("Create Workshop"),
       "parent": "board/dashboard",
       "content": "board/post_workshop",
     });
@@ -99,13 +96,25 @@ pub fn unauthenticated_dashboard(_page: PathBuf) -> Redirect {
 
 #[post("/dashboard/workshop", data = "<workshop>")]
 pub fn post_workshop(user: UserCookie, workshop: Form<WorkshopForm>) -> Result<Redirect, Error> {
-    use model::{workshop::NewWorkshop, Sanitize, Resource, Validate};
+    use model::{workshop::Workshop, Resource, Sanitize, Validate};
 
-    let mut new_workshop = NewWorkshop::from(&workshop);
+    let mut new_workshop = Workshop::from(&workshop);
     new_workshop.organizer = Some(user.0 as i32);
-    new_workshop.validate()?;
-    new_workshop.sanitize()?;
-    new_workshop.save()?;
+    new_workshop.create()?;
+
+    Ok(Redirect::to("/dashboard/workshops"))
+}
+
+#[post("/dashboard/workshop/<id>", data = "<workshop>")]
+pub fn update_workshop(
+    user: UserCookie,
+    id: i32,
+    workshop: Form<WorkshopForm>,
+) -> Result<Redirect, Error> {
+    use model::{workshop::Workshop, Resource};
+
+    let mut existing_workshop = Workshop::from(&workshop);
+    existing_workshop.update(id as usize)?;
 
     Ok(Redirect::to("/dashboard/workshops"))
 }
