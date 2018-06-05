@@ -55,9 +55,9 @@ impl<'i> super::Resource for Invite<'i> {
     type Model = InviteModel;
 
     fn create(&self) -> Result<(), Error> {
-        use super::{Sanitize, Validate};
         use diesel::RunQueryDsl;
         use schema::invites::dsl::*;
+        use super::{Sanitize, Validate};
 
         self.validate()?;
         self.sanitize()?;
@@ -92,6 +92,10 @@ impl<'i> super::Resource for Invite<'i> {
     fn update(&self, model_id: usize) -> Result<(), Error> {
         use diesel::prelude::*;
         use schema::invites::dsl::*;
+        use super::{Sanitize, Validate};
+
+        self.validate()?;
+        self.sanitize()?;
 
         let existing_invite = Self::read_one(model_id)?;
         ::diesel::update(&existing_invite)
