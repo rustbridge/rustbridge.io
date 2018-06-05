@@ -1,7 +1,8 @@
 use chrono::NaiveDateTime;
 
-#[derive(FromForm)]
+#[derive(FromForm, Debug)]
 pub struct Workshop {
+    model_id: Option<usize>,
     name: String,
     description: String,
     location: String,
@@ -15,6 +16,10 @@ pub struct Workshop {
 }
 
 impl Workshop {
+    pub fn model_id(&self) -> &Option<usize> {
+        &self.model_id
+    }
+
     pub fn name(&self) -> &str {
         &self.name[..]
     }

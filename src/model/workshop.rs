@@ -75,9 +75,9 @@ impl<'ws> super::Resource for Workshop<'ws> {
     type Model = WorkshopModel;
 
     fn create(&self) -> Result<(), Error> {
-        use super::{Sanitize, Validate};
         use diesel::RunQueryDsl;
         use schema::workshops::dsl::*;
+        use super::{Sanitize, Validate};
 
         self.validate()?;
         self.sanitize()?;
@@ -112,6 +112,10 @@ impl<'ws> super::Resource for Workshop<'ws> {
     fn update(&self, model_id: usize) -> Result<(), Error> {
         use diesel::prelude::*;
         use schema::workshops::dsl::*;
+        use model::{Validate, Sanitize};
+
+        self.validate()?;
+        self.sanitize()?;
 
         let existing_workshop = Self::read_one(model_id)?;
         ::diesel::update(&existing_workshop)

@@ -6,13 +6,13 @@ authors = ["technetos <mrgould93@gmail.com>",
            "rupsis <nrupsis@gmail.com>"]
 
 [dependencies]
-rocket = "0.3.11"
-rocket_codegen = "0.3.11"
+rocket = "0.3.12"
+rocket_codegen = "0.3.12"
 comrak = "0.2.8"
 serde_derive = "1.0.27"
 serde = "1.0"
 
-diesel = { version = "1.0.0", features = ["postgres", "chrono"] }
+diesel = { version = "<= 1.2.0", features = ["postgres", "chrono"] }
 
 chrono = { version = "0.4", features = ["serde"] }
 

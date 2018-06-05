@@ -20,6 +20,8 @@ pub fn start() {
                 route::dashboard::dashboard,
                 route::dashboard::unauthenticated_dashboard,
                 route::dashboard::post_workshop,
+                route::dashboard::update_workshop,
+                route::dashboard::put_workshop,
             ],
         )
         .launch();
