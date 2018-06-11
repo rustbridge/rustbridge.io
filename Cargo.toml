@@ -22,6 +22,9 @@ failure_derive = "0.1.1"
 data-encoding = "2.1.1"
 ring = "0.11.0"
 
+lettre = "0.8"
+lettre_email = "0.8"
+
 [dependencies.rocket_contrib]
 version = "*"
 default-features = false

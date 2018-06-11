@@ -21,6 +21,9 @@ extern crate chrono;
 extern crate data_encoding;
 extern crate ring;
 
+extern crate lettre;
+extern crate lettre_email;
+
 pub mod db;
 pub mod form;
 pub mod model;
