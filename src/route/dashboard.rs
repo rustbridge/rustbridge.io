@@ -5,11 +5,21 @@ use rocket_contrib::Template;
 use route::{organizer::UserCookie, page_title};
 use std::path::PathBuf;
 
-fn home() -> Template {
+fn home(user_id: usize) -> Template {
+    use model::{workshop::Workshop, Resource};
+
+    type T<'t> = <Workshop<'t> as Resource>::Model;
+    let items: Vec<T> = Workshop::read_all()
+        .unwrap()
+        .into_iter()
+        .filter(|ws| ws.organizer == (user_id as i32))
+        .collect();
+      
     let context = json!({
       "title": page_title("DashBoard"),
       "parent": "board/dashboard",
       "content": "",
+      "items": items,
     });
 
     Template::render("board/dashboard_content", &context)
@@ -107,8 +117,6 @@ fn update_workshop(user: UserCookie, id: usize) -> Result<Template, Error> {
       "current_private": item.private,
     });
 
-    println!("{:#?}", context);
-
     Ok(Template::render("board/dashboard_content", &context))
 
   } else {
@@ -119,11 +127,11 @@ fn update_workshop(user: UserCookie, id: usize) -> Result<Template, Error> {
 #[get("/dashboard/<page..>", rank = 2)]
 pub fn dashboard(user: UserCookie, page: PathBuf) -> Template {
     match &page.to_string_lossy().into_owned()[..] {
-        "home" => home(),
+        "home" => home(user.0),
         "workshops" => workshops(user.0),
         "invites" => invites(user.0),
         "create-workshop" => create_workshop(),
-        _ => home(),
+        _ => home(user.0),
     }
 }
 
@@ -151,6 +159,7 @@ pub fn put_workshop(
     use model::{workshop::Workshop, Resource};
 
     let mut existing_workshop = Workshop::from(&workshop);
+    existing_workshop.organizer = Some(user.0 as i32);
     existing_workshop.update(workshop.get().model_id().unwrap())?;
 
     Ok(Redirect::to("/dashboard/workshops"))
