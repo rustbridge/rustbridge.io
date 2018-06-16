@@ -39,6 +39,9 @@ impl<'i> From<&'i Form<'i, InviteForm>> for Invite<'i> {
 
 impl<'i> super::Validate for Invite<'i> {
     fn validate(&self) -> Result<(), Error> {
+        if let None = self.email {
+            bail!("Email validation failed");
+        }
         Ok(())
     }
 }
@@ -54,19 +57,26 @@ use db;
 impl<'i> super::Resource for Invite<'i> {
     type Model = InviteModel;
 
-    fn create(&self) -> Result<(), Error> {
+    fn create(&self) -> Result<Option<i32>, Error> {
+        use super::{Sanitize, Validate};
         use diesel::RunQueryDsl;
         use schema::invites::dsl::*;
-        use super::{Sanitize, Validate};
 
         self.validate()?;
         self.sanitize()?;
 
         let _ = ::diesel::insert_into(invites)
             .values(self)
-            .execute(&db::establish_connection());
+            .execute(&db::establish_connection())?;
 
-        Ok(())
+        let model_id = Self::read_all()
+          .unwrap()
+          .iter()
+          .filter(|i| i.email == self.email.unwrap())
+          .collect::<Vec<&Self::Model>>()[0]
+          .id;
+
+        Ok(Some(model_id))
     }
 
     fn read_all() -> Result<Vec<Self::Model>, Error> {
@@ -90,9 +100,9 @@ impl<'i> super::Resource for Invite<'i> {
     }
 
     fn update(&self, model_id: usize) -> Result<(), Error> {
+        use super::{Sanitize, Validate};
         use diesel::prelude::*;
         use schema::invites::dsl::*;
-        use super::{Sanitize, Validate};
 
         self.validate()?;
         self.sanitize()?;
