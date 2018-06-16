@@ -14,7 +14,7 @@ fn home(user_id: usize) -> Template {
         .into_iter()
         .filter(|ws| ws.organizer == (user_id as i32))
         .collect();
-      
+
     let context = json!({
       "title": page_title("DashBoard"),
       "parent": "board/dashboard",
@@ -44,7 +44,7 @@ fn invites(user_id: usize) -> Template {
             invites
                 .iter()
                 .filter(|i| i.workshop_id == ws.id)
-                .collect::<Vec<&U>>()
+                .collect::<Vec<&U>>(),
         );
     });
 
@@ -90,20 +90,19 @@ fn create_workshop() -> Template {
 
 #[get("/dashboard/update-workshop/<id>")]
 fn update_workshop(user: UserCookie, id: usize) -> Result<Template, Error> {
-  use model::{workshop::Workshop, Resource};
+    use model::{workshop::Workshop, Resource};
 
-  type T<'t> = <Workshop<'t> as Resource>::Model;
-  let items: Vec<T> = Workshop::read_all()
-    .unwrap()
-    .into_iter()
-    .filter(|x| (user.0 as i32) == x.organizer)
-    .filter(|x| x.id == (id as i32))
-    .collect();
+    type T<'t> = <Workshop<'t> as Resource>::Model;
+    let items: Vec<T> = Workshop::read_all()?
+        .into_iter()
+        .filter(|x| (user.0 as i32) == x.organizer)
+        .filter(|x| x.id == (id as i32))
+        .collect();
 
-  if !items.is_empty() {
-    let item = items.first().unwrap();
+    if !items.is_empty() {
+        let item = items.first().unwrap();
 
-    let context = json!({
+        let context = json!({
       "title": page_title("Update Workshop"),
       "parent": "board/dashboard",
       "content": "board/update_workshop",
@@ -117,11 +116,10 @@ fn update_workshop(user: UserCookie, id: usize) -> Result<Template, Error> {
       "current_private": item.private,
     });
 
-    Ok(Template::render("board/dashboard_content", &context))
-
-  } else {
-    bail!("page not found")
-  }
+        Ok(Template::render("board/dashboard_content", &context))
+    } else {
+        bail!("page not found")
+    }
 }
 
 #[get("/dashboard/<page..>", rank = 2)]
@@ -152,10 +150,7 @@ pub fn post_workshop(user: UserCookie, workshop: Form<WorkshopForm>) -> Result<R
 }
 
 #[post("/dashboard/update-workshop", data = "<workshop>")]
-pub fn put_workshop(
-    user: UserCookie,
-    workshop: Form<WorkshopForm>,
-) -> Result<Redirect, Error> {
+pub fn put_workshop(user: UserCookie, workshop: Form<WorkshopForm>) -> Result<Redirect, Error> {
     use model::{workshop::Workshop, Resource};
 
     let mut existing_workshop = Workshop::from(&workshop);

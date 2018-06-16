@@ -73,14 +73,52 @@ pub fn volunteer() -> Result<Template, Error> {
     Ok(Template::render("main_page/page", &context))
 }
 
-#[post("/request-invite", data = "<invite>")]
-pub fn post_invite_request(invite: Form<InviteForm>) -> Result<Redirect, Error> {
-    use model::{invite::Invite, Resource};
+fn send_email(email: &str, code: &str) {
+  println!("Sending email to: {} with code: {}", email, code);
+}
 
-    let mut new_invite = Invite::from(&invite);
-    new_invite.create()?;
+fn gen_invite_code() -> String {
+    use data_encoding;
+    use ring::{
+        digest, rand::{SecureRandom, SystemRandom},
+    };
+    const CREDENTIAL_LEN: usize = digest::SHA256_OUTPUT_LEN;
+
+    let mut v = [0u8; CREDENTIAL_LEN];
+    let _ = SystemRandom.fill(&mut v);
+    data_encoding::HEXUPPER.encode(&v[..])
+}
+
+#[post("/request-invite", data = "<invite_form>")]
+pub fn post_invite_request(invite_form: Form<InviteForm>) -> Result<Redirect, Error> {
+    use model::{invite::Invite, invite_confirmation::InviteConfirmation, Resource};
+
+    let invite = Invite::from(&invite_form);
+    let invite_id = invite.create()?;
+
+    let code = gen_invite_code();
+    InviteConfirmation {
+        code: &code,
+        invite_id: invite_id.unwrap(),
+    }.create()?;
+
+    send_email(&invite.email.unwrap(), &code);
 
     Ok(Redirect::to("/"))
+}
+
+#[get("/confirm_invite/<code>")]
+pub fn confirm_invite(code: String) -> Result<Redirect, Error> {
+    use model::{invite::Invite, invite_confirmation::InviteConfirmation, Resource};
+
+    type T<'t> = <InviteConfirmation<'t> as Resource>::Model;
+    let codes: Vec<T> = InviteConfirmation::read_all()?.into_iter().filter(|i| i.code == code).collect();
+    
+    if !codes.is_empty() {
+      println!("Code found: {:#?}", codes.first().unwrap());
+    }
+
+    bail!("Confirmation code not found")
 }
 
 fn markdown(path: &Path) -> Result<String, Error> {

@@ -1,4 +1,14 @@
 table! {
+    invite_confirmations (id) {
+        id -> Int4,
+        code -> Varchar,
+        invite_id -> Int4,
+        created_at -> Timestamp,
+        updated_at -> Timestamp,
+    }
+}
+
+table! {
     invites (id) {
         id -> Int4,
         workshop_id -> Int4,
@@ -45,7 +55,8 @@ table! {
     }
 }
 
+joinable!(invite_confirmations -> invites (invite_id));
 joinable!(invites -> workshops (workshop_id));
 joinable!(workshops -> users (organizer));
 
-allow_tables_to_appear_in_same_query!(invites, salts, users, workshops,);
+allow_tables_to_appear_in_same_query!(invite_confirmations, invites, salts, users, workshops,);

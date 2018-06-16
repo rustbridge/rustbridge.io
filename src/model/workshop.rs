@@ -74,19 +74,19 @@ use db;
 impl<'ws> super::Resource for Workshop<'ws> {
     type Model = WorkshopModel;
 
-    fn create(&self) -> Result<(), Error> {
+    fn create(&self) -> Result<Option<i32>, Error> {
+        use super::{Sanitize, Validate};
         use diesel::RunQueryDsl;
         use schema::workshops::dsl::*;
-        use super::{Sanitize, Validate};
 
         self.validate()?;
         self.sanitize()?;
 
         let _ = ::diesel::insert_into(workshops)
             .values(self)
-            .execute(&db::establish_connection());
+            .execute(&db::establish_connection())?;
 
-        Ok(())
+        Ok(None)
     }
 
     fn read_all() -> Result<Vec<Self::Model>, Error> {
@@ -111,8 +111,8 @@ impl<'ws> super::Resource for Workshop<'ws> {
 
     fn update(&self, model_id: usize) -> Result<(), Error> {
         use diesel::prelude::*;
+        use model::{Sanitize, Validate};
         use schema::workshops::dsl::*;
-        use model::{Validate, Sanitize};
 
         self.validate()?;
         self.sanitize()?;

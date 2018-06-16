@@ -13,6 +13,7 @@ pub fn start() {
                 route::learn,
                 route::volunteer,
                 route::post_invite_request,
+                route::confirm_invite,
                 route::organizer::login_page,
                 route::organizer::login_user,
                 route::organizer::login_submit,
