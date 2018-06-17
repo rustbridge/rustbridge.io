@@ -42,12 +42,19 @@ impl<'i> super::Validate for Invite<'i> {
         if let None = self.email {
             bail!("Email validation failed");
         }
+
         Ok(())
     }
 }
 
 impl<'i> super::Sanitize for Invite<'i> {
     fn sanitize(&self) -> Result<(), Error> {
+        if let Some(em) = self.email {
+          if em.len() == 0 {
+            bail!("Invalid Email Format: {}", em);
+          }
+        }
+
         Ok(())
     }
 }
@@ -104,7 +111,6 @@ impl<'i> super::Resource for Invite<'i> {
         use diesel::prelude::*;
         use schema::invites::dsl::*;
 
-        self.validate()?;
         self.sanitize()?;
 
         let existing_invite = Self::read_one(model_id)?;
@@ -115,7 +121,7 @@ impl<'i> super::Resource for Invite<'i> {
         Ok(())
     }
 
-    fn delete(&self, model_id: usize) -> Result<(), Error> {
+    fn delete(model_id: usize) -> Result<(), Error> {
         use diesel::prelude::*;
 
         let existing_invite = Self::read_one(model_id)?;

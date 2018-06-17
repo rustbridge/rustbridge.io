@@ -74,7 +74,7 @@ pub fn volunteer() -> Result<Template, Error> {
 }
 
 fn send_email(email: &str, code: &str) {
-  println!("Sending email to: {} with code: {}", email, code);
+    println!("Sending email to: {} with code: {}", email, code);
 }
 
 fn gen_invite_code() -> String {
@@ -89,14 +89,14 @@ fn gen_invite_code() -> String {
     data_encoding::HEXUPPER.encode(&v[..])
 }
 
-#[post("/request-invite", data = "<invite_form>")]
-pub fn post_invite_request(invite_form: Form<InviteForm>) -> Result<Redirect, Error> {
+#[post("/apply", data = "<invite_form>")]
+pub fn apply(invite_form: Form<InviteForm>) -> Result<Redirect, Error> {
     use model::{invite::Invite, invite_confirmation::InviteConfirmation, Resource};
 
     let invite = Invite::from(&invite_form);
     let invite_id = invite.create()?;
-
     let code = gen_invite_code();
+
     InviteConfirmation {
         code: &code,
         invite_id: invite_id.unwrap(),
@@ -112,13 +112,27 @@ pub fn confirm_invite(code: String) -> Result<Redirect, Error> {
     use model::{invite::Invite, invite_confirmation::InviteConfirmation, Resource};
 
     type T<'t> = <InviteConfirmation<'t> as Resource>::Model;
-    let codes: Vec<T> = InviteConfirmation::read_all()?.into_iter().filter(|i| i.code == code).collect();
-    
-    if !codes.is_empty() {
-      println!("Code found: {:#?}", codes.first().unwrap());
+    let codes: Vec<T> = InviteConfirmation::read_all()?
+        .into_iter()
+        .filter(|i| i.code == code)
+        .collect();
+
+    if let Some(confirmation) = codes.first() {
+        println!("Code found: {:#?}", confirmation);
+
+        InviteConfirmation::delete(confirmation.id as usize)?;
+
+        Invite {
+            workshop_id: None,
+            email: None,
+            attending: Some(true),
+            pending: Some(false),
+        }.update(confirmation.invite_id as usize)?;
+
+        bail!("Invite Confirmation Success Page Not Implemented")
     }
 
-    bail!("Confirmation code not found")
+    bail!("Invite Not Found Page Not Implemented")
 }
 
 fn markdown(path: &Path) -> Result<String, Error> {

@@ -125,7 +125,7 @@ impl<'ws> super::Resource for Workshop<'ws> {
         Ok(())
     }
 
-    fn delete(&self, model_id: usize) -> Result<(), Error> {
+    fn delete(model_id: usize) -> Result<(), Error> {
         use diesel::prelude::*;
 
         let existing_workshop = Self::read_one(model_id)?;

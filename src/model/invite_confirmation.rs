@@ -88,7 +88,7 @@ impl<'ic> super::Resource for InviteConfirmation<'ic> {
         Ok(())
     }
 
-    fn delete(&self, model_id: usize) -> Result<(), Error> {
+    fn delete(model_id: usize) -> Result<(), Error> {
         use diesel::prelude::*;
 
         let confirmed_invite_code = Self::read_one(model_id)?;
